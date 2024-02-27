@@ -1,13 +1,23 @@
 <div class="row">
   <div class="col-sm-12">
     <app-card cardTitle="Accounts" [options]="false">
-      <h5>Create transaction</h5>
+      <h5> {{ isCreatingTransaction ? "Create transaction" : "Update transaction" }}</h5>
       <hr />
       <div class="row">
 
         <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
 
           <div class="col-md-6">
+
+
+            <div class="form-group row" *ngIf="!isCreatingTransaction">
+              <label for="transactionID" class="col-sm-4 col-form-label">Transaction ID</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="transactionID" [value]="currentTransaction.transactionId"
+                       readonly />
+              </div>
+            </div>
+
 
             <div class="form-group row">
               <label for="accountId" class="col-sm-4 col-form-label">Account</label>
@@ -75,7 +85,6 @@
           </div>
         </form>
       </div>
-
     </app-card>
   </div>
 </div>

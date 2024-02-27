@@ -28,6 +28,7 @@
               <th>Category</th>
               <th>Type</th>
               <th>Description</th>
+              <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -38,6 +39,9 @@
               <td>{{ transaction.category }}</td>
               <td>{{ transaction.type }}</td>
               <td>{{ transaction.description }}</td>
+              <td>
+                <a class="btn btn-link-success" role="button" (click)="onSelectTransaction(transaction)">View</a>
+              </td>
             </tr>
             </tbody>
           </table>

@@ -41,7 +41,7 @@ const routes: Routes = [
         loadComponent: () => import('./transaction/list/transaction-list.component')
       },
       {
-        path: 'transaction',
+        path: 'transaction/:transactionId',
         loadComponent: () => import('./transaction/create/create-transaction.component')
       },
       {

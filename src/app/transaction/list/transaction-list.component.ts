@@ -21,8 +21,7 @@ import { Transaction } from '../../core/model/Transaction';
 export default class TransactionListComponent {
 
   accounts: Account[] = [];
-
-  transactions: Transaction[] = [ ];
+  transactions: Transaction[] = [];
 
   constructor(public accountService_: AccountService, public transactionService_: TransactionService, private router: Router) {
   }
@@ -43,9 +42,9 @@ export default class TransactionListComponent {
   }
 
 
-  onSelectAccount(account: Account) {
-    console.log('la cuenta es ' + JSON.stringify(account));
-    this.router.navigate(['/account/' + account.accountId]);
+  onSelectTransaction(transaction: Transaction) {
+    console.log('la cuenta es ' + JSON.stringify(transaction));
+    this.router.navigate(['/transaction/' + transaction.transactionId]);
   }
 
 

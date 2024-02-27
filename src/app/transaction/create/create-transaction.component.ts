@@ -21,15 +21,15 @@ import { TransactionService } from '../../service/TransactionService.service';
 })
 export default class CreateAccountComponent {
 
-  currentAccount: Account = { accountId: undefined, name: '', balance: 0, accountType: '' };
+  currentTransaction: Transaction = { accountId: 1, value: 1, category: '', description: '', date: '', type: '' };
   isCreatingTransaction: boolean;
   transactionForm: FormGroup;
 
   accounts: Account[] = [];
   categories: KeyValueParameter[] = [
     {
-      key: 'AL',
-      value: 'Alimentos',
+      key: 'Food',
+      value: 'Food',
       value2: 'EXPENSE'
     },
     {
@@ -71,7 +71,7 @@ export default class CreateAccountComponent {
   }
 
   initForm(): void {
-    this.currentAccount = { accountId: undefined, name: '', balance: 0, accountType: '' };
+    this.currentTransaction = { accountId: 1, value: 1, category: '', description: '', date: '', type: '' };
     this.isCreatingTransaction = true;
     this.loadAccounts();
     this.loadFormTransactions();
@@ -89,8 +89,8 @@ export default class CreateAccountComponent {
   }
 
   loadFormTransactions() {
-    const accountParameter = this.activatedRoute.snapshot.paramMap.get('transactionId');
-    if (accountParameter === 'c' || accountParameter === null) {
+    const transactionParameter = this.activatedRoute.snapshot.paramMap.get('transactionId');
+    if (transactionParameter === 'c' || transactionParameter === null) {
       this.isCreatingTransaction = true;
       this.transactionForm.reset();
       this.transactionForm.reset({
@@ -103,15 +103,24 @@ export default class CreateAccountComponent {
       });
     } else {
       this.isCreatingTransaction = false;
-      this.accountService_.getAccountByAccountId(Number(accountParameter)).subscribe(
+      this.transactionService_.getTransactionByTransactionId(Number(transactionParameter)).subscribe(
         data => {
           console.log('' + data);
-          this.currentAccount = data;
+          this.currentTransaction = data;
           this.transactionForm.setValue({
-            name: data.name,
-            balance: data.balance.toString(),
-            accountType: data.accountType,
-            active: data.active
+            accountId: data.accountId,
+            value: data.value,
+            type: data.type,
+            date: data.date,
+            category: data.type,
+            description: data.description
+          });
+          this.transactionForm.patchValue({
+            category: data.category
+          });
+          const date = this.formatDate(data.date);
+          this.transactionForm.patchValue({
+            date: date
           });
         },
         error => {
@@ -142,36 +151,32 @@ export default class CreateAccountComponent {
 
     if (this.transactionForm.valid) {
       const transactionData: Transaction = {
-        ...this.transactionForm.value,
-        userId: undefined
+        ...this.transactionForm.value
       };
-
       transactionData.date = this.convertToISODateTimeWithCurrentTime(transactionData.date);
-
       if (this.isCreatingTransaction) {
         this.createTransation(transactionData);
       } else {
         this.updateTransaction(transactionData);
-        //this.router.navigate(['/transaction-list']);
       }
     } else {
       console.log('Formulario no válido');
     }
   }
 
-  convertToISODateTime(dateInput: Date | string): string {
-    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
-    const isoDateTime = date.toISOString();
-    return isoDateTime.split('.')[0] + 'Z';
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    let year = date.getFullYear().toString();
+    let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Meses comienzan desde 0
+    let day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 
   convertToISODateTimeWithCurrentTime(dateInput: Date | string): string {
     let date: Date;
-
     if (typeof dateInput === 'string') {
       date = new Date(dateInput);
-
-      // Si la entrada es una cadena que representa solo una fecha, ajusta la hora al momento actual
       if (dateInput.trim().length <= 10) {
         const now = new Date();
         date.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
@@ -179,10 +184,7 @@ export default class CreateAccountComponent {
     } else {
       date = dateInput;
     }
-
-    // Convertimos la fecha a formato ISO 8601, incluyendo la hora actual si fue ajustada
     const isoDateTime = date.toISOString();
-
     return isoDateTime;
   }
 
@@ -198,9 +200,9 @@ export default class CreateAccountComponent {
   }
 
   updateTransaction(transaction: Transaction) {
-    //accountData.accountId = this.currentAccount.accountId;
+    transaction.transactionId = this.currentTransaction.transactionId;
     console.log(JSON.stringify(transaction));
-    this.transactionService_.createTransaction(transaction).subscribe(
+    this.transactionService_.updateTransaction(transaction).subscribe(
       data => {
         this.router.navigate(['/transaction-list']);
       },
