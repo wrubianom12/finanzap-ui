@@ -1,0 +1,77 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Accounts" [options]="false">
+
+      <div class="row">
+        <div class="col-md-3">
+          <app-card [hidHeader]="true">
+            <div class="row">
+              <div class="col-auto">
+                <span>Accounts</span>
+              </div>
+              <div class="col text-end">
+                <h2 class="mb-0">Total : {{ accounts.length }}</h2>
+              </div>
+            </div>
+            <apx-chart
+              [series]="chartAccounts.series!"
+              [chart]="chartAccounts.chart!"
+              [stroke]="chartAccounts.stroke!"
+              [dataLabels]="chartAccounts.dataLabels!"
+              [labels]="chartAccounts.labels!"
+              [legend]="chartAccounts.legend!"
+              [colors]="chartAccounts.colors!"
+              [fill]="chartAccounts.fill!"
+              [grid]="chartAccounts.grid!"
+            >
+              [plotOptions]="chartAccounts.plotOptions" [tooltip]="chartAccounts.tooltip"
+            </apx-chart>
+            <div class="row mt-3 text-center">
+              <div class="col">
+                <h3 class="m-0"><i class="fas fa-circle f-10 m-r-5 text-success"></i>{{ counts.Credit }}</h3>
+                <span class="ms-3">Credit</span>
+              </div>
+              <div class="col">
+                <h3 class="m-0"><i class="fas fa-circle text-primary f-10 m-r-5"></i>{{ counts.Debit }}</h3>
+                <span class="ms-3">Debit</span>
+              </div>
+            </div>
+          </app-card>
+        </div>
+      </div>
+
+
+      <h5>List Accounts</h5>
+      <hr />
+
+
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Account name</th>
+              <th>Account Type</th>
+              <th>Balance</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let account of accounts; let i = index">
+              <td>{{ account.name }}</td>
+              <td>{{ account.accountType }}</td>
+              <td>{{ account.balance | currency }}</td>
+              <td>{{ account.active ? "Yes" : "No" }}</td>
+              <td>
+                <a class="btn btn-link-success" role="button" (click)="onSelectAccount(account)">View</a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </app-card>
+  </div>
+</div>
