@@ -45,6 +45,20 @@ export const NavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/account/c',
         icon: 'feather icon-home'
+      },
+      {
+        id: 'transaction-list',
+        title: 'Transactions',
+        type: 'item',
+        url: '/transaction-list',
+        icon: 'feather icon-home'
+      },
+      {
+        id: 'transaction',
+        title: 'Create transaction',
+        type: 'item',
+        url: '/transaction',
+        icon: 'feather icon-home'
       }
     ]
   },

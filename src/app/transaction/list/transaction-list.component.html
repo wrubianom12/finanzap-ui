@@ -1,0 +1,50 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Transactions list" [options]="false">
+      <h5>Transactions list</h5>
+      <hr />
+
+      <div class="col-md-6">
+        <div class="form-group row">
+          <label for="accountType" class="col-sm-3 col-form-label">Account Type</label>
+          <div class="col-sm-9">
+            <select class="mb-3 form-control" formControlName="accountType" id="accountType"
+                    (change)="clickSelectAccount($event)">
+              <option [value]="-1">Select a option</option>
+              <option *ngFor="let account of accounts" [value]="account.accountId">{{ account.name }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Date</th>
+              <th>Value</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Suponiendo que la variable transactions contiene el objeto JSON -->
+            <tr *ngFor="let transaction of transactions; let i = index">
+              <td>{{ transaction.date | date:'mediumDate' }}</td>
+              <td>{{ transaction.value | currency }}</td>
+              <td>{{ transaction.category }}</td>
+              <td>{{ transaction.type }}</td>
+              <td>{{ transaction.description }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+    </app-card>
+  </div>
+</div>

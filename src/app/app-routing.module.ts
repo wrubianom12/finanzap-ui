@@ -32,10 +32,17 @@ const routes: Routes = [
         path: 'forms',
         loadComponent: () => import('./demo/forms & tables/form-elements/form-elements.component')
       },
-
       {
         path: 'account-list',
         loadComponent: () => import('./account/list/account.component')
+      },
+      {
+        path: 'transaction-list',
+        loadComponent: () => import('./transaction/list/transaction-list.component')
+      },
+      {
+        path: 'transaction',
+        loadComponent: () => import('./transaction/create/create-transaction.component')
       },
       {
         path: 'account/:accountId',
