@@ -45,6 +45,10 @@ const routes: Routes = [
         loadComponent: () => import('./transaction/create/create-transaction.component')
       },
       {
+        path: 'category',
+        loadComponent: () => import('./category/create/category.component')
+      },
+      {
         path: 'account/:accountId',
         loadComponent: () => import('./account/create/create-account.component')
       },

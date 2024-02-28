@@ -8,7 +8,7 @@
         <div class="form-group row">
           <label for="accountType" class="col-sm-3 col-form-label">Account Type</label>
           <div class="col-sm-9">
-            <select class="mb-3 form-control" formControlName="accountType" id="accountType"
+            <select class="mb-3 form-control" id="accountType"
                     (change)="clickSelectAccount($event)">
               <option [value]="-1">Select a option</option>
               <option *ngFor="let account of accounts" [value]="account.accountId">{{ account.name }}</option>
@@ -16,7 +16,6 @@
           </div>
         </div>
       </div>
-
 
       <div class="row">
         <div class="table-responsive">

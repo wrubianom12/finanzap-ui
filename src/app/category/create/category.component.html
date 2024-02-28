@@ -1,0 +1,100 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Category" [options]="false">
+      <h5>{{ isCreatingCategoryForm ? "Create category" : "Update Category" }}</h5>
+      <hr />
+      <div class="row">
+
+        <form [formGroup]="categoryTypeForm" (ngSubmit)="onSubmit()">
+
+          <div class="col-md-6">
+
+            <div class="form-group row" *ngIf="!isCreatingCategoryForm">
+              <label for="categoryId" class="col-sm-3 col-form-label">Category Id</label>
+              <div class="col-sm-9">
+                <input type="text" formControlName="categoryId" class="form-control" id="categoryId"
+                       placeholder="code" readonly />
+              </div>
+            </div>
+
+
+            <div class="form-group row">
+              <label for="code" class="col-sm-3 col-form-label">Code</label>
+              <div class="col-sm-9">
+                <input type="text" formControlName="code" class="form-control" id="code"
+                       placeholder="code" />
+              </div>
+              <small *ngIf="categoryTypeForm.get('code')?.invalid && categoryTypeForm.get('code')?.touched"
+                     style="color: red;">
+                Code is required.
+              </small>
+            </div>
+
+            <div class="form-group row">
+              <label for="name" class="col-sm-3 col-form-label">Name</label>
+              <div class="col-sm-9">
+                <input type="text" formControlName="name" class="form-control" id="name"
+                       placeholder="name" />
+              </div>
+              <small *ngIf="categoryTypeForm.get('name')?.invalid && categoryTypeForm.get('name')?.touched"
+                     style="color: red;">
+                Name is required.
+              </small>
+            </div>
+
+            <div class="form-group row">
+              <label for="transactionTypeEnum" class="col-sm-3 col-form-label">Category type</label>
+              <div class="col-sm-9">
+                <select class="mb-3 form-control" formControlName="transactionTypeEnum" id="transactionTypeEnum">
+                  <option *ngFor="let type of transactionsType" [value]="type.key">{{ type.value }}</option>
+                </select>
+              </div>
+              <small
+                *ngIf="categoryTypeForm.get('transactionTypeEnum')?.invalid && categoryTypeForm.get('transactionTypeEnum')?.touched"
+                style="color: red;">
+                Category type is required.
+              </small>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary">{{ isCreatingCategoryForm ? "Save" : "Update" }}</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <h5>Category list</h5>
+      <hr />
+
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Category ID</th>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Transaction Type</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let category of categories">
+              <td>{{ category.categoryId }}</td>
+              <td>{{ category.code }}</td>
+              <td>{{ category.name }}</td>
+              <td>{{ category.transactionTypeEnum }}</td>
+              <td>
+                <a class="btn btn-link-success" role="button" (click)="onSelectEditCategory(category)">Edit</a>
+                <a class="btn btn-link-danger" role="button" (click)="onSelectDeleteCategory(category)">Delete</a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </app-card>
+  </div>
+</div>
