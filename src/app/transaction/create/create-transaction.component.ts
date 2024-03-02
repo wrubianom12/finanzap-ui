@@ -4,55 +4,40 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { AccountService } from '../../service/AccountService.service';
-import { KeyValueParameter } from '../../core/model/KeyValueParameter';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Account } from '../../core/model/Account';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Transaction } from '../../core/model/Transaction';
 import { TransactionService } from '../../service/TransactionService.service';
+import { CategoryService } from '../../service/CategoryService.service';
+import { catchError, of } from 'rxjs';
+import { Category } from '../../core/model/Category';
+import Swal from 'sweetalert2';
+import { Location } from '@angular/common';
+
 
 
 @Component({
-  selector: 'app-create-account',
+  selector: 'app-create-transaction',
   standalone: true,
   imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule],
   templateUrl: './create-transaction.component.html',
   styleUrls: ['./create-transaction.component.scss']
 })
-export default class CreateAccountComponent {
+export default class CreateTransactionComponent {
 
   currentTransaction: Transaction = { accountId: 1, value: 1, category: '', description: '', date: '', type: '' };
   isCreatingTransaction: boolean;
   transactionForm: FormGroup;
 
   accounts: Account[] = [];
-  categories: KeyValueParameter[] = [
-    {
-      key: 'Food',
-      value: 'Food',
-      value2: 'EXPENSE'
-    },
-    {
-      key: 'Salary',
-      value: 'Salary',
-      value2: 'INCOME'
-    }
-  ];
-
-  transactionsType: KeyValueParameter[] = [
-    {
-      key: 'INCOME',
-      value: 'Income'
-    },
-    {
-      key: 'EXPENSE',
-      value: 'Expense'
-    }
-  ];
+  categories: Category[] = [];
 
   constructor(public accountService_: AccountService,
               public transactionService_: TransactionService,
+              public categoryService_: CategoryService,
               private activatedRoute: ActivatedRoute,
+              private location: Location,
               private router: Router) {
     this.transactionForm = new FormGroup({
       accountId: new FormControl('', Validators.required),
@@ -75,7 +60,23 @@ export default class CreateAccountComponent {
     this.isCreatingTransaction = true;
     this.loadAccounts();
     this.loadFormTransactions();
+    this.loadCategories();
   }
+
+
+  loadCategories() {
+    this.categoryService_.getAllCategories().pipe(
+      catchError(error => {
+        console.log('Error delete a account', error);
+        return of([]);
+      })
+    ).subscribe(
+      data => {
+        this.categories = data;
+      }
+    );
+  }
+
 
   loadAccounts() {
     this.accountService_.getAllAccountByUserId().subscribe(
@@ -132,23 +133,21 @@ export default class CreateAccountComponent {
 
   onCategoryChange(selectedCategory: any) {
     const category =
-      this.categories.find(category => category.key === selectedCategory.target.value);
+      this.categories.find(category => (category.code) === (selectedCategory.target.value));
     if (category) {
-      this.transactionForm.get('type')?.setValue(category.value2);
+      this.transactionForm.get('type')?.setValue(category.transactionTypeEnum);
       this.transactionForm.patchValue({
-        type: category.value2
+        type: category.transactionTypeEnum
       });
     }
   }
 
   onSubmit() {
+    this.transactionForm.markAllAsTouched();
     const selectedAccountId = this.transactionForm.get('accountId')?.value;
     this.transactionForm.patchValue({
       accountId: selectedAccountId
     });
-
-    console.log('El formulario es::::: ' + JSON.stringify(this.transactionForm.value));
-
     if (this.transactionForm.valid) {
       const transactionData: Transaction = {
         ...this.transactionForm.value
@@ -191,7 +190,8 @@ export default class CreateAccountComponent {
   createTransation(transaction: Transaction) {
     this.transactionService_.createTransaction(transaction).subscribe(
       data => {
-        this.router.navigate(['/transaction-list']);
+        Swal.fire('', 'The transaction was created', 'success');
+        this.location.back();
       },
       error => {
         console.log('error create transaction', error);
@@ -204,7 +204,8 @@ export default class CreateAccountComponent {
     console.log(JSON.stringify(transaction));
     this.transactionService_.updateTransaction(transaction).subscribe(
       data => {
-        this.router.navigate(['/transaction-list']);
+        Swal.fire('', 'The transaction was updated', 'success');
+        this.location.back();
       },
       error => {
         console.log('error create transaction', error);

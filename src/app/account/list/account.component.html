@@ -64,14 +64,17 @@
               <td>{{ account.balance | currency }}</td>
               <td>{{ account.active ? "Yes" : "No" }}</td>
               <td>
-                <a class="btn btn-link-success" role="button" (click)="onSelectAccount(account)">View</a>
+                <a class="btn btn-link-success" role="button" (click)="onSelectAccount(account)">Transactions</a>
+                <a class="btn btn-link-primary" role="button" (click)="onEditAccount(account)">Edit</a>
+                <a class="btn btn-link-danger" role="button" (click)="onSelectDeleteaccount(account)">Delete</a>
               </td>
             </tr>
             </tbody>
           </table>
         </div>
       </div>
-
     </app-card>
+    <app-transaction-list *ngIf="currentAccount.accountId"
+                          [datoRecibido]="currentAccount.accountId"></app-transaction-list>
   </div>
 </div>

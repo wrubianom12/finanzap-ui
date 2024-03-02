@@ -26,6 +26,10 @@
                   <option *ngFor="let account of accounts" [value]="account.accountId">{{ account.name }}</option>
                 </select>
               </div>
+              <small *ngIf="transactionForm.get('accountId')?.invalid && transactionForm.get('accountId')?.touched"
+                     style="color: red;">
+                Account is required
+              </small>
             </div>
 
             <div class="form-group row">
@@ -33,6 +37,10 @@
               <div class="col-sm-8">
                 <input type="date" id="date" formControlName="date" class="form-control">
               </div>
+              <small *ngIf="transactionForm.get('date')?.invalid && transactionForm.get('date')?.touched"
+                     style="color: red;">
+                Date is required
+              </small>
             </div>
 
             <div class="form-group row">
@@ -40,9 +48,13 @@
               <div class="col-sm-8">
                 <select class="mb-3 form-control" formControlName="category" id="category"
                         (change)="onCategoryChange($event)">
-                  <option *ngFor="let category of categories" [value]="category.key">{{ category.value }}</option>
+                  <option *ngFor="let category of categories" [value]="category.code">{{ category.name }}</option>
                 </select>
               </div>
+              <small *ngIf="transactionForm.get('category')?.invalid && transactionForm.get('category')?.touched"
+                     style="color: red;">
+                Category is required
+              </small>
             </div>
 
             <div class="form-group row">
@@ -51,6 +63,10 @@
                 <input type="text" formControlName="type" class="form-control" id="type"
                        placeholder="type" readonly />
               </div>
+              <small *ngIf="transactionForm.get('type')?.invalid && transactionForm.get('type')?.touched"
+                     style="color: red;">
+                You need to select a category
+              </small>
             </div>
 
             <div class="form-group row">

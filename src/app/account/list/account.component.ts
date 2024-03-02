@@ -8,11 +8,14 @@ import { Account } from '../../core/model/Account';
 import { Router } from '@angular/router';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ChartOptions } from '../../demo/dashboard/dash-analytics/dash-analytics.component';
+import Swal from 'sweetalert2';
+import { catchError, of } from 'rxjs';
+import TransactionListComponent from '../../transaction/list/transaction-list.component';
 
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule, NgApexchartsModule],
+  imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule, NgApexchartsModule, TransactionListComponent],
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.scss']
 })
@@ -20,15 +23,16 @@ export default class AccountComponent {
 
   chartAccounts!: Partial<ChartOptions>;
   counts = { Credit: 0, Debit: 0 };
-  accounts: Account[] = [
-    {
-      accountId: 4,
-      userId: 1,
-      balance: 3010.00,
-      accountType: 'Credit',
-      name: 'BBVAs Colombia'
-    }
-  ];
+  accounts: Account[] = [];
+  currentAccount: Account = {
+    accountId: undefined,
+    userId: undefined,
+    active: false,
+    balance: 0,
+    accountType: '',
+    name: ''
+  };
+
 
   constructor(public accountService_: AccountService, private router: Router) {
     this.chartAccounts = {
@@ -77,11 +81,13 @@ export default class AccountComponent {
   }
 
   initForm(): void {
+    this.loadAccountsUser();
+  }
+
+  loadAccountsUser() {
     this.accountService_.getAllAccountByUserId().subscribe(
       data => {
         this.accounts = data;
-
-
         this.accounts.forEach(account => {
           if (account.accountType === 'Credit') {
             this.counts.Credit += 1;
@@ -100,13 +106,45 @@ export default class AccountComponent {
     );
   }
 
-
-  onSelectAccount(account: Account) {
-
-    console.log('la cuenta es ' + JSON.stringify(account));
+  onEditAccount(account: Account) {
+    this.currentAccount = account;
     this.router.navigate(['/account/' + account.accountId]);
-
   }
 
+  onSelectAccount(account: Account) {
+    this.currentAccount = account;
+    //this.router.navigate(['/account/' + account.accountId]);
+  }
+
+  onSelectDeleteaccount(account: Account) {
+    if (account.accountId) {
+      Swal.fire({
+        title: 'Are you sure you want to remove this?',
+        text: 'You will not be able to recover this account!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, keep it'
+      }).then((result) => {
+        if (result.value) {
+          if (account.accountId) this.deleteAccount(account.accountId);
+        }
+      });
+    }
+  }
+
+  deleteAccount(accountId: number) {
+    this.accountService_.deleteAccountByAccountId(accountId).pipe(
+      catchError(error => {
+        console.log('Error delete a account', error);
+        return of([]);
+      })
+    ).subscribe(
+      data => {
+        Swal.fire('', 'The account was deleted', 'success');
+        this.loadAccountsUser();
+      }
+    );
+  }
 
 }

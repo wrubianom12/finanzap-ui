@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Transaction } from '../core/model/Transaction';
-import { Account } from '../core/model/Account';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
@@ -19,6 +18,10 @@ export class TransactionService {
 
   getTransactionByTransactionId(transactionId: number): Observable<Transaction> {
     return this.http.get<Transaction>(`${this.resourceUrl}/${transactionId}`);
+  }
+
+  deleteTransactionByTransactionId(transactionId: number): Observable<any> {
+    return this.http.delete(`${this.resourceUrl}/${transactionId}`);
   }
 
   createTransaction(transaction: Transaction): Observable<any> {

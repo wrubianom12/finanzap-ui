@@ -99,6 +99,7 @@ export default class CreateAccountComponent {
   }
 
   onSubmit() {
+    this.accountForm.markAllAsTouched();
     if (this.accountForm.valid) {
       const accountData: Account = {
         ...this.accountForm.value,

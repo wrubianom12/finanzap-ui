@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { TransactionService } from '../../service/TransactionService.service';
 import { Transaction } from '../../core/model/Transaction';
+import Swal from 'sweetalert2';
+import { catchError, of } from 'rxjs';
 
 
 @Component({
@@ -20,6 +22,13 @@ import { Transaction } from '../../core/model/Transaction';
 })
 export default class TransactionListComponent {
 
+  @Input()
+  set datoRecibido(accountId: number) {
+    this.principalComponent = false;
+    this.findTransactionsById(accountId);
+  }
+
+  principalComponent: boolean = true;
   accounts: Account[] = [];
   transactions: Transaction[] = [];
 
@@ -47,6 +56,36 @@ export default class TransactionListComponent {
     this.router.navigate(['/transaction/' + transaction.transactionId]);
   }
 
+  onDeleteTransaction(transaction: Transaction) {
+    if (transaction.transactionId) {
+      Swal.fire({
+        title: 'Are you sure you want to remove this?',
+        text: 'You will not be able to recover this transaction!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, keep it'
+      }).then((result) => {
+        if (result.value) {
+          if (transaction.transactionId) this.deleteTransaction(transaction.transactionId, transaction.accountId);
+        }
+      });
+    }
+  }
+
+  deleteTransaction(categoryId: number, accountId: number) {
+    this.transactionService_.deleteTransactionByTransactionId(categoryId).pipe(
+      catchError(error => {
+        console.log('Error delete a category', error);
+        return of([]);
+      })
+    ).subscribe(
+      data => {
+        Swal.fire('', 'The. transaction was deleted', 'success');
+        this.findTransactionsById(accountId);
+      }
+    );
+  }
 
   clickSelectAccount(event: any) {
     const selectedAccountId = event.target.value;

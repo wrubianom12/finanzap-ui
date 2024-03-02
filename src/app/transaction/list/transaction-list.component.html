@@ -1,10 +1,10 @@
 <div class="row">
   <div class="col-sm-12">
-    <app-card cardTitle="Transactions list" [options]="false">
+    <app-card cardTitle="" [options]="false">
       <h5>Transactions list</h5>
       <hr />
 
-      <div class="col-md-6">
+      <div class="col-md-6" *ngIf="principalComponent">
         <div class="form-group row">
           <label for="accountType" class="col-sm-3 col-form-label">Account Type</label>
           <div class="col-sm-9">
@@ -40,6 +40,7 @@
               <td>{{ transaction.description }}</td>
               <td>
                 <a class="btn btn-link-success" role="button" (click)="onSelectTransaction(transaction)">View</a>
+                <a class="btn btn-link-danger" role="button" (click)="onDeleteTransaction(transaction)">Delete</a>
               </td>
             </tr>
             </tbody>

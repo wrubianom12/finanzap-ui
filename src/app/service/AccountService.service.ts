@@ -20,6 +20,10 @@ export class AccountService {
     return this.http.get<Account>(`${this.resourceUrl}/${accountId}`);
   }
 
+  deleteAccountByAccountId(accountId: number): Observable<string> {
+    return this.http.delete<string>(`${this.resourceUrl}/${accountId}`);
+  }
+
   createAccount(account: Account): Observable<string> {
     return this.http.post<string>(`${this.resourceUrl}`, account);
   }
