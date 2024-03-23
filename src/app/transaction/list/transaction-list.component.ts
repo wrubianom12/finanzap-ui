@@ -11,12 +11,15 @@ import { TransactionService } from '../../service/TransactionService.service';
 import { Transaction } from '../../core/model/Transaction';
 import Swal from 'sweetalert2';
 import { catchError, of } from 'rxjs';
+import ChartDonutComponent from '../../core/components/chart/donut/chart-donut.component';
 
 
 @Component({
   selector: 'app-transaction-list',
   standalone: true,
-  imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule, NgApexchartsModule],
+  imports: [CommonModule, SharedModule, NgbDropdownModule,
+    ColorPickerModule,
+    NgApexchartsModule, ChartDonutComponent],
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.scss']
 })
@@ -28,6 +31,7 @@ export default class TransactionListComponent {
     this.findTransactionsById(accountId);
   }
 
+  itemsChart: { label: string; value: number; }[] = [];
   principalComponent: boolean = true;
   accounts: Account[] = [];
   transactions: Transaction[] = [];
@@ -97,11 +101,30 @@ export default class TransactionListComponent {
     this.transactionService_.getAllTransactionByAccountId(accountId).subscribe(
       data => {
         this.transactions = data;
+        this.loadDataChart();
       },
       error => {
         console.log('error consume getAllTransactionByAccountId ', error);
       }
     );
+  }
+
+  loadDataChart() {
+    this.itemsChart = [];
+    const countByType = this.transactions.reduce((acc, { type }) => {
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    for (const type in countByType) {
+      if (countByType.hasOwnProperty(type)) {
+        this.itemsChart.push({
+          label: type,
+          value: countByType[type]
+        });
+
+      }
+    }
   }
 
 
