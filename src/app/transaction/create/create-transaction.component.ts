@@ -14,7 +14,8 @@ import { catchError, of } from 'rxjs';
 import { Category } from '../../core/model/Category';
 import Swal from 'sweetalert2';
 import { Location } from '@angular/common';
-
+import { KeyValueParameter } from '../../core/model/KeyValueParameter';
+import { TransactionTypeService } from '../../service/TransactionTypeService.service';
 
 
 @Component({
@@ -29,7 +30,7 @@ export default class CreateTransactionComponent {
   currentTransaction: Transaction = { accountId: 1, value: 1, category: '', description: '', date: '', type: '' };
   isCreatingTransaction: boolean;
   transactionForm: FormGroup;
-
+  transactionsType: KeyValueParameter[] = [];
   accounts: Account[] = [];
   categories: Category[] = [];
 
@@ -38,6 +39,7 @@ export default class CreateTransactionComponent {
               public categoryService_: CategoryService,
               private activatedRoute: ActivatedRoute,
               private location: Location,
+              public transactionTypeService_: TransactionTypeService,
               private router: Router) {
     this.transactionForm = new FormGroup({
       accountId: new FormControl('', Validators.required),
@@ -45,7 +47,8 @@ export default class CreateTransactionComponent {
       type: new FormControl('', Validators.required),
       date: new FormControl('', Validators.required),
       category: new FormControl('', Validators.required),
-      description: new FormControl('', Validators.required)
+      description: new FormControl('', Validators.required),
+      transactionType: new FormControl('')
     });
 
     this.isCreatingTransaction = true;
@@ -65,14 +68,16 @@ export default class CreateTransactionComponent {
 
 
   loadCategories() {
-    this.categoryService_.getAllCategories().pipe(
+
+    this.transactionTypeService_.getAllTransactionType().pipe(
       catchError(error => {
-        console.log('Error delete a account', error);
+        console.log('error getAllTransactionType', error);
         return of([]);
       })
     ).subscribe(
       data => {
-        this.categories = data;
+        this.transactionsType = data;
+        this.transactionsType.push({ key: '', value: 'All types' });
       }
     );
   }
@@ -99,6 +104,7 @@ export default class CreateTransactionComponent {
         value: null,
         type: '',
         date: null,
+        transactionType: '',
         category: '',
         description: ''
       });
@@ -114,6 +120,7 @@ export default class CreateTransactionComponent {
             type: data.type,
             date: data.date,
             category: data.type,
+            transactionType: '',
             description: data.description
           });
           this.transactionForm.patchValue({
@@ -129,6 +136,19 @@ export default class CreateTransactionComponent {
         }
       );
     }
+  }
+
+  onTransactionTypeChange(selectedTransactionType: any) {
+    this.categoryService_.getAllCategoryByTransactionType(selectedTransactionType.target.value).pipe(
+      catchError(error => {
+        console.log('Error delete a account', error);
+        return of([]);
+      })
+    ).subscribe(
+      data => {
+        this.categories = data;
+      }
+    );
   }
 
   onCategoryChange(selectedCategory: any) {

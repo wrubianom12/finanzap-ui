@@ -27,4 +27,14 @@ export class CategoryService {
     return this.http.put<string>(`${this.resourceUrl}`, category);
   }
 
+
+  getCategoryById(categoryId: number): Observable<Category> {
+    return this.http.get<Category>(`${this.resourceUrl}/${categoryId}`);
+  }
+
+
+  getAllCategoryByTransactionType(transactionType: number): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.resourceUrl}/search?categoryType=${transactionType}`);
+  }
+
 }
