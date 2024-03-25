@@ -23,6 +23,7 @@ export default class CategoryComponent {
 
   currentCategory: Category = { categoryId: undefined, name: '', code: '', transactionTypeEnum: '' };
   isCreatingCategoryForm: boolean;
+  categorySearchForm: FormGroup;
   categoryTypeForm: FormGroup;
   categories: Category[] = [];
   transactionsType: KeyValueParameter[] = [];
@@ -35,6 +36,11 @@ export default class CategoryComponent {
       code: new FormControl(null, [Validators.required]),
       transactionTypeEnum: new FormControl('', Validators.required)
     });
+
+    this.categorySearchForm = new FormGroup({
+      transactionType: new FormControl('')
+    });
+
     this.isCreatingCategoryForm = true;
   }
 
@@ -187,6 +193,21 @@ export default class CategoryComponent {
         categoryType.disable();
       }
     }
+  }
+
+
+  search() {
+    this.categoryService_.getAllCategoryByTransactionType(this.categorySearchForm.value.transactionType)
+      .pipe(
+        catchError(error => {
+          console.log('Error al cargar las categorías', error);
+          return of([]);
+        })
+      ).subscribe(
+      data => {
+        this.categories = data;
+      }
+    );
   }
 
 

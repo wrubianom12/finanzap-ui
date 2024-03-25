@@ -67,6 +67,30 @@
       <h5>Category list</h5>
       <hr />
 
+      <form [formGroup]="categorySearchForm" (ngSubmit)="search()">
+        <div class="col-md-6">
+          <div class="form-group row">
+            <label for="transactionType" class="col-sm-4 col-form-label">Category type</label>
+            <div class="col-sm-8">
+              <select class="mb-3 form-control" formControlName="transactionType" id="transactionType">
+                <option *ngFor="let type of transactionsType" [value]="type.key">{{ type.value }}</option>
+              </select>
+            </div>
+            <small
+              *ngIf="categorySearchForm.get('transactionType')?.invalid && categorySearchForm.get('transactionType')?.touched"
+              style="color: red;">
+              Category type is required.
+            </small>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <hr />
       <div class="row">
         <div class="table-responsive">
           <table class="table">
