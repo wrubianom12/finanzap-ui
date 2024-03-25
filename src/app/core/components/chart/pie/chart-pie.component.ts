@@ -10,8 +10,8 @@ import { ChartOptions } from '../../../../demo/chart & map/core-apex/core-apex.c
   selector: 'app-char-donut',
   standalone: true,
   imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule, NgApexchartsModule],
-  templateUrl: './chart-donut.component.html',
-  styleUrls: ['./chart-donut.component.scss']
+  templateUrl: './chart-pie.component.html',
+  styleUrls: ['./chart-pie.component.scss']
 })
 export default class ChartDonutComponent {
 

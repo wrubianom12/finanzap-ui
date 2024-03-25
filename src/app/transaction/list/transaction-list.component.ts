@@ -38,16 +38,19 @@ export default class TransactionListComponent {
 
   transactionSearchForm: FormGroup;
   itemsChartTotalTransactions: { label: string; value: number; }[] = [];
+  itemsChartGroupByCategories: { label: string; value: number; }[] = [];
   itemsChartSumAmountTransactions: { label: string; value: number; }[] = [];
   principalComponent: boolean = true;
   accounts: Account[] = [];
   transactionsType: KeyValueParameter[] = [];
+  categoryTypesFilter: KeyValueParameter[] = [];
   transactions: Transaction[] = [];
   currentAccountId: number = 0;
 
   constructor(public accountService_: AccountService, public transactionTypeService_: TransactionTypeService, public transactionService_: TransactionService, private router: Router) {
     this.transactionSearchForm = new FormGroup({
       transactionType: new FormControl(''),
+      categoryFilterType: new FormControl(''),
       firstDate: new FormControl(''),
       endDate: new FormControl('')
     });
@@ -125,11 +128,50 @@ export default class TransactionListComponent {
     this.transactionService_.getAllTransactionByAccountId(accountId).subscribe(
       data => {
         this.transactions = data;
-        this.loadDataChartTotalTransactions();
-        this.loadDataChartSumAmountTransactions();
+        this.loadChars();
+        this.loadSpecificCategories();
       },
       error => {
         console.log('error consume getAllTransactionByAccountId ', error);
+      }
+    );
+  }
+
+  loadSpecificCategories() {
+    const uniqueCategories: KeyValueParameter[] = this.transactions.reduce((acc: KeyValueParameter[], current: Transaction) => {
+      // Busca si la categoría ya existe en el acumulador
+      const categoryIndex = acc.findIndex(category => category.key === current.category);
+
+      if (categoryIndex === -1) {
+        // Si no existe, añade la categoría al acumulador con un conteo inicial de 1
+        // y establece el valor inicial de value2 como el valor de la transacción actual
+        acc.push({ key: current.category, value: `1`, value2: `${(current.value)}` });
+      } else {
+        acc[categoryIndex].value = (parseInt(acc[categoryIndex].value, 10) + 1).toString();
+        acc[categoryIndex].value2 = `${((Number(acc[categoryIndex].value2) + Number(current.value)))}`;
+      }
+      return acc;
+    }, []);
+    this.categoryTypesFilter = uniqueCategories;
+    // console.log('El resultado del filtrado  es ' + JSON.stringify(this.categoryTypesFilter));
+    this.categoryTypesFilter.push({ key: '', value: 'All types' });
+    this.loadDataChartGroupByCategories();
+  }
+
+
+  loadChars() {
+    this.loadDataChartTotalTransactions();
+    this.loadDataChartSumAmountTransactions();
+  }
+
+  loadDataChartGroupByCategories() {
+    this.itemsChartGroupByCategories = [];
+    this.categoryTypesFilter.forEach(
+      param => {
+        this.itemsChartGroupByCategories.push({
+          label: param.key,
+          value: Number(param.value2)
+        });
       }
     );
   }
@@ -168,7 +210,6 @@ export default class TransactionListComponent {
         });
       }
     }
-    console.log('El resultado de la suma es ' + JSON.stringify(this.itemsChartSumAmountTransactions));
   }
 
   search() {
@@ -176,12 +217,13 @@ export default class TransactionListComponent {
       .getAllTransactionByCriteria(this.currentAccountId,
         this.addTimeToDate(this.transactionSearchForm.value.firstDate),
         this.addTimeToDate(this.transactionSearchForm.value.endDate),
-        this.transactionSearchForm.value.transactionType)
+        this.transactionSearchForm.value.transactionType,
+        this.transactionSearchForm.value.categoryFilterType)
       .subscribe(
         data => {
           this.transactions = data;
-          this.loadDataChartTotalTransactions();
-          this.loadDataChartSumAmountTransactions();
+          this.loadChars();
+          this.loadSpecificCategories();
         },
         error => {
           console.log('error consume getAllTransactionByCriteria ', error);
