@@ -99,4 +99,24 @@ export default class AccountComponent {
     );
   }
 
+
+  // En tu componente AccountComponent
+
+  calculateDisplayBalance(account: Account): string {
+    if (!account) return '$0';
+    if (account.accountType === 'Credit') {
+      const balance = account.balance ?? 0;
+      const totalAmount = account.detailCreditAccount?.totalAmount ?? 0;
+      const result = totalAmount - balance;
+
+      return result.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    }
+    return '';
+  }
+
+  isDebtCellHighlighted(account: Account): boolean {
+    return account.accountType === 'Credit' && this.calculateDisplayBalance(account) !== null;
+  }
+
+
 }

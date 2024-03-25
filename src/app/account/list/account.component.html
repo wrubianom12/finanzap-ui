@@ -13,6 +13,7 @@
               <th>Balance</th>
               <th>Active</th>
               <th>Total Amount</th>
+              <th>Debt to pay</th>
               <th>Pay date</th>
               <th>Cut date</th>
               <th>Actions</th>
@@ -25,8 +26,15 @@
               <td>{{ account.balance | currency }}</td>
               <td>{{ account.active ? "Yes" : "No" }}</td>
               <td>{{ account.detailCreditAccount?.totalAmount | currency }}</td>
-              <td>{{ account.detailCreditAccount?.payDate | date:'mediumDate' }}</td>
-              <td>{{ account.detailCreditAccount?.cutDate | date:'mediumDate' }}</td>
+
+
+              <td [class.highlight-debt]="isDebtCellHighlighted(account)">
+                {{ calculateDisplayBalance(account) }}
+              </td>
+
+
+              <td>{{ account.detailCreditAccount?.payDate | date:'d' }}</td>
+              <td>{{ account.detailCreditAccount?.cutDate | date:'d' }}</td>
               <td>
                 <a class="btn btn-link-success" role="button" (click)="onSelectAccount(account)">Transactions</a>
                 <a class="btn btn-link-primary" role="button" (click)="onEditAccount(account)">Edit</a>
