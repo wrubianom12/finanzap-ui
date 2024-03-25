@@ -12,6 +12,10 @@ import { Transaction } from '../../core/model/Transaction';
 import Swal from 'sweetalert2';
 import { catchError, of } from 'rxjs';
 import ChartDonutComponent from '../../core/components/chart/donut/chart-donut.component';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { KeyValueParameter } from '../../core/model/KeyValueParameter';
+import { TransactionTypeService } from '../../service/TransactionTypeService.service';
+import { Category } from '../../core/model/Category';
 
 
 @Component({
@@ -28,15 +32,25 @@ export default class TransactionListComponent {
   @Input()
   set datoRecibido(accountId: number) {
     this.principalComponent = false;
+    this.currentAccountId = accountId;
     this.findTransactionsById(accountId);
   }
 
-  itemsChart: { label: string; value: number; }[] = [];
+  transactionSearchForm: FormGroup;
+  itemsChartTotalTransactions: { label: string; value: number; }[] = [];
+  itemsChartSumAmountTransactions: { label: string; value: number; }[] = [];
   principalComponent: boolean = true;
   accounts: Account[] = [];
+  transactionsType: KeyValueParameter[] = [];
   transactions: Transaction[] = [];
+  currentAccountId: number = 0;
 
-  constructor(public accountService_: AccountService, public transactionService_: TransactionService, private router: Router) {
+  constructor(public accountService_: AccountService, public transactionTypeService_: TransactionTypeService, public transactionService_: TransactionService, private router: Router) {
+    this.transactionSearchForm = new FormGroup({
+      transactionType: new FormControl(''),
+      firstDate: new FormControl(''),
+      endDate: new FormControl('')
+    });
   }
 
   ngOnInit(): void {
@@ -50,6 +64,15 @@ export default class TransactionListComponent {
       },
       error => {
         console.log('error consume getAllTransactionByAccountId ', error);
+      }
+    );
+    this.transactionTypeService_.getAllTransactionType().subscribe(
+      data => {
+        this.transactionsType = data;
+        this.transactionsType.push({ key: '', value: 'All types' });
+      },
+      error => {
+        console.log('error getAllTransactionType', error);
       }
     );
   }
@@ -94,6 +117,7 @@ export default class TransactionListComponent {
   clickSelectAccount(event: any) {
     const selectedAccountId = event.target.value;
     console.log('Selected Account ID:', selectedAccountId);
+    this.currentAccountId = selectedAccountId;
     this.findTransactionsById(selectedAccountId);
   }
 
@@ -101,7 +125,8 @@ export default class TransactionListComponent {
     this.transactionService_.getAllTransactionByAccountId(accountId).subscribe(
       data => {
         this.transactions = data;
-        this.loadDataChart();
+        this.loadDataChartTotalTransactions();
+        this.loadDataChartSumAmountTransactions();
       },
       error => {
         console.log('error consume getAllTransactionByAccountId ', error);
@@ -109,8 +134,8 @@ export default class TransactionListComponent {
     );
   }
 
-  loadDataChart() {
-    this.itemsChart = [];
+  loadDataChartTotalTransactions() {
+    this.itemsChartTotalTransactions = [];
     const countByType = this.transactions.reduce((acc, { type }) => {
       acc[type] = (acc[type] || 0) + 1;
       return acc;
@@ -118,13 +143,63 @@ export default class TransactionListComponent {
 
     for (const type in countByType) {
       if (countByType.hasOwnProperty(type)) {
-        this.itemsChart.push({
+        this.itemsChartTotalTransactions.push({
           label: type,
           value: countByType[type]
         });
 
       }
     }
+  }
+
+
+  loadDataChartSumAmountTransactions() {
+    this.itemsChartSumAmountTransactions = [];
+    const countByType = this.transactions.reduce((acc, { type, value }) => {
+      acc[type] = (acc[type] || 0) + Number(value);
+      return acc;
+    }, {} as { [key: string]: number });
+
+    for (const type in countByType) {
+      if (countByType.hasOwnProperty(type)) {
+        this.itemsChartSumAmountTransactions.push({
+          label: type,
+          value: countByType[type]
+        });
+      }
+    }
+    console.log('El resultado de la suma es ' + JSON.stringify(this.itemsChartSumAmountTransactions));
+  }
+
+  search() {
+    this.transactionService_
+      .getAllTransactionByCriteria(this.currentAccountId,
+        this.addTimeToDate(this.transactionSearchForm.value.firstDate),
+        this.addTimeToDate(this.transactionSearchForm.value.endDate),
+        this.transactionSearchForm.value.transactionType)
+      .subscribe(
+        data => {
+          this.transactions = data;
+          this.loadDataChartTotalTransactions();
+          this.loadDataChartSumAmountTransactions();
+        },
+        error => {
+          console.log('error consume getAllTransactionByCriteria ', error);
+        }
+      );
+  }
+
+
+  addTimeToDate(dateInput: string): string {
+    console.log('El date onput es::.::::::  ' + dateInput);
+    if (dateInput !== null && dateInput !== undefined && dateInput !== '') {
+      const hours = '00';
+      const minutes = '00';
+      const seconds = '00';
+      const timeString = `${hours}:${minutes}:${seconds}`;
+      return `${dateInput}T${timeString}`;
+    }
+    return '';
   }
 
 

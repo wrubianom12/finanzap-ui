@@ -65,7 +65,6 @@ export default class AccountComponent {
 
   onSelectAccount(account: Account) {
     this.currentAccount = account;
-    //this.router.navigate(['/account/' + account.accountId]);
   }
 
   onSelectDeleteaccount(account: Account) {

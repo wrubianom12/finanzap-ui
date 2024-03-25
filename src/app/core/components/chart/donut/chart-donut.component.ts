@@ -15,8 +15,9 @@ import { ChartOptions } from '../../../../demo/chart & map/core-apex/core-apex.c
 })
 export default class ChartDonutComponent {
 
+  pipe: boolean = false;
   charPropertes: Partial<ChartOptions>;
-  title: string = 'Default';
+  title: string = 'Total transactions';
   totalRows: number = 0;
   items: { label: string; value: number; color: string; }[] = [];
 
@@ -24,18 +25,27 @@ export default class ChartDonutComponent {
   set itemsChart(itemsChart: any) {
     this.charPropertes = this.restoreChart();
     this.items = itemsChart;
-    console.log('Entro por el input char donut ' + JSON.stringify(this.items));
     let arraySerials: Array<any> = [];
-
+    this.totalRows = 0;
     if (itemsChart) {
       for (let i = 0; i < itemsChart.length; i++) {
-        console.log('el item value es ' + itemsChart[i].value);
         arraySerials.push(itemsChart[i].value);
+        this.totalRows += itemsChart[i].value;
         this.charPropertes.labels?.push(itemsChart[i].label);
         this.charPropertes.colors?.push(this.generateRandomColor());
       }
       this.charPropertes.series = arraySerials;
     }
+  }
+
+  @Input()
+  set titleCard(titleCard: string) {
+    this.title = titleCard;
+  }
+
+  @Input()
+  set typeMov(tipeMov: string) {
+
   }
 
   generateRandomColor(): string {
@@ -53,6 +63,7 @@ export default class ChartDonutComponent {
   }
 
   initForm(): void {
+    this.restoreChart();
   }
 
   restoreChart(): Partial<ChartOptions> {
