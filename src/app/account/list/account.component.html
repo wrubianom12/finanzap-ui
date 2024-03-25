@@ -26,13 +26,9 @@
               <td>{{ account.balance | currency }}</td>
               <td>{{ account.active ? "Yes" : "No" }}</td>
               <td>{{ account.detailCreditAccount?.totalAmount | currency }}</td>
-
-
               <td [class.highlight-debt]="isDebtCellHighlighted(account)">
                 {{ calculateDisplayBalance(account) }}
               </td>
-
-
               <td>{{ account.detailCreditAccount?.payDate | date:'d' }}</td>
               <td>{{ account.detailCreditAccount?.cutDate | date:'d' }}</td>
               <td>
