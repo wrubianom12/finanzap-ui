@@ -1,3 +1,5 @@
+import { DetailCreditAccount } from './DetailCreditAccount';
+
 export interface Account {
   accountId?: number;
   userId?: number;
@@ -5,4 +7,5 @@ export interface Account {
   balance: number;
   accountType: string;
   name: string;
+  detailCreditAccount?: DetailCreditAccount;
 }

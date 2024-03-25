@@ -33,7 +33,8 @@
             <div class="form-group row">
               <label for="accountType" class="col-sm-3 col-form-label">Account Type</label>
               <div class="col-sm-9">
-                <select class="mb-3 form-control" formControlName="accountType" id="accountType">
+                <select class="mb-3 form-control" formControlName="accountType" id="accountType"
+                        (change)="clickSelectAccountType($event)">
                   <option *ngFor="let type of accountsTypes" [value]="type.key">{{ type.value }}</option>
                 </select>
               </div>
@@ -43,12 +44,50 @@
               </small>
             </div>
 
+
+            <div *ngIf="isCreditAccount">
+              <div class="form-group row">
+                <label for="totalAmount" class="col-sm-3 col-form-label">Total amount</label>
+                <div class="col-sm-9">
+                  <input type="text" formControlName="totalAmount" class="form-control" id="totalAmount"
+                         placeholder="Total Amount" />
+                </div>
+                <small *ngIf="accountForm.get('totalAmount')?.invalid && accountForm.get('totalAmount')?.touched"
+                       style="color: red;">
+                  Total Amount is required and must be a number.
+                </small>
+              </div>
+              <div class="form-group row">
+                <label for="payDate" class="col-sm-3 col-form-label">Pay Date</label>
+                <div class="col-sm-9">
+                  <input type="date" id="payDate" formControlName="payDate" class="form-control">
+                </div>
+                <small *ngIf="accountForm.get('payDate')?.invalid && accountForm.get('payDate')?.touched"
+                       style="color: red;">
+                  Pay date is required
+                </small>
+              </div>
+
+              <div class="form-group row">
+                <label for="cutDate" class="col-sm-3 col-form-label">Cut Date</label>
+                <div class="col-sm-9">
+                  <input type="date" id="cutDate" formControlName="cutDate" class="form-control">
+                </div>
+                <small *ngIf="accountForm.get('cutDate')?.invalid && accountForm.get('cutDate')?.touched"
+                       style="color: red;">
+                  Cut date is required
+                </small>
+              </div>
+
+            </div>
+
             <div class="form-group row">
               <label for="active" class="col-sm-3 col-form-label">Active</label>
               <div class="col-sm-9">
                 <input type="checkbox" class="form-check-input" formControlName="active" id="active" />
               </div>
             </div>
+
 
             <div class="form-group row">
               <div class="col-sm-10">
