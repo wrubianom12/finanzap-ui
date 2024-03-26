@@ -74,8 +74,8 @@ export default class ChartPieComponent {
       series: [],
       colors: [],
       chart: {
-        height: 320,
-        type: 'pie'
+        height: 500,
+        type: 'donut'
       },
       dataLabels: {
         enabled: true,
@@ -83,17 +83,49 @@ export default class ChartPieComponent {
           enabled: false
         }
       },
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '10%'
-          }
-        }
-      },
       legend: {
         show: true,
         position: 'bottom'
-      }
+      },
+      tooltip: {
+        y: {
+          // Función personalizada para formatear el valor mostrado en el tooltip
+          formatter: function(value) {
+            return new Intl.NumberFormat('es-CO', {
+              style: 'currency',
+              currency: 'COP'
+            }).format(value);
+          }
+        }
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              show: true,
+              name: {
+                show: true
+              },
+              value: {
+                show: true
+              }
+            }
+          }
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      ]
     };
   }
 
