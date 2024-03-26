@@ -16,12 +16,13 @@ import Swal from 'sweetalert2';
 import { Location } from '@angular/common';
 import { KeyValueParameter } from '../../core/model/KeyValueParameter';
 import { TransactionTypeService } from '../../service/TransactionTypeService.service';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @Component({
   selector: 'app-create-transaction',
   standalone: true,
-  imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule],
+  imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule, NgSelectModule],
   templateUrl: './create-transaction.component.html',
   styleUrls: ['./create-transaction.component.scss']
 })
