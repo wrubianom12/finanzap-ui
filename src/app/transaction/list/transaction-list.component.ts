@@ -47,6 +47,8 @@ export default class TransactionListComponent {
   categoryTypesFilter: KeyValueParameter[] = [];
   transactions: Transaction[] = [];
   currentAccountId: number = 0;
+  filterCategory: string = '';
+  sortDirection: 'asc' | 'desc' | null = 'asc';
 
   constructor(public accountService_: AccountService, public transactionTypeService_: TransactionTypeService, public transactionService_: TransactionService, private router: Router) {
     this.transactionSearchForm = new FormGroup({
@@ -220,6 +222,24 @@ export default class TransactionListComponent {
       }
     }
   }
+
+  get filteredTransactions(): Transaction[] {
+    return this.transactions.filter(transaction =>
+      transaction.category.toLowerCase().includes(this.filterCategory.toLowerCase())
+    );
+  }
+
+  toggleSort() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.transactions.sort((a, b) => {
+      if (this.sortDirection === 'asc') {
+        return a.value - b.value;
+      } else {
+        return b.value - a.value;
+      }
+    });
+  }
+
 
   search() {
     this.transactionService_
