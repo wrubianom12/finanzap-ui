@@ -5,8 +5,6 @@
       <hr />
 
 
-
-
       <div class="col-md-6" *ngIf="principalComponent">
         <div class="form-group row">
           <label for="accountType" class="col-sm-4 col-form-label">Account Type</label>
@@ -65,7 +63,7 @@
             <label for="categoryFilterType" class="col-sm-4 col-form-label">Category especific type</label>
             <div class="col-sm-8">
               <select class="mb-3 form-control" formControlName="categoryFilterType" id="categoryFilterType">
-                <option *ngFor="let type of categoryTypesFilter" [value]="type.key">{{ type.value }}</option>
+                <option *ngFor="let type of categoryTypesFilter" [value]="type.key">{{ type.label }}</option>
               </select>
             </div>
             <small
@@ -87,18 +85,15 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="row">
-            <div class="col-md-5">
-              <app-char-donut [itemsChart]="itemsChartTotalTransactions" titleCard="Total transactions"></app-char-donut>
-            </div>
-            <div class="col-md-5">
-              <app-char-donut [itemsChart]="itemsChartSumAmountTransactions" titleCard="Total Movenment "></app-char-donut>
-            </div>
-          </div>
-
-          <div class="row">
             <div class="col-md-12">
-              <app-char-donut [itemsChart]="itemsChartGroupByCategories" titleCard="Group by categories"></app-char-donut>
+              <app-char-pie [itemsChart]="itemsChartGroupByCategories" titleCard="Group by PIE"></app-char-pie>
             </div>
+
+            <!--            <div class="col-md-6">-->
+            <!--              <app-char-donut [itemsChart]="itemsChartTotalTransactions"-->
+            <!--                              titleCard="Total transactions"></app-char-donut>-->
+            <!--            </div>-->
+
           </div>
         </div>
       </div>

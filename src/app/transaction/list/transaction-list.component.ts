@@ -16,6 +16,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { KeyValueParameter } from '../../core/model/KeyValueParameter';
 import { TransactionTypeService } from '../../service/TransactionTypeService.service';
 import { Category } from '../../core/model/Category';
+import ChartPieComponent from '../../core/components/chart/pie/chart-pie.component';
 
 
 @Component({
@@ -23,7 +24,7 @@ import { Category } from '../../core/model/Category';
   standalone: true,
   imports: [CommonModule, SharedModule, NgbDropdownModule,
     ColorPickerModule,
-    NgApexchartsModule, ChartDonutComponent],
+    NgApexchartsModule, ChartDonutComponent, ChartPieComponent],
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.scss']
 })
@@ -82,7 +83,7 @@ export default class TransactionListComponent {
 
 
   onSelectTransaction(transaction: Transaction) {
-    console.log('la cuenta es ' + JSON.stringify(transaction));
+
     this.router.navigate(['/transaction/' + transaction.transactionId]);
   }
 
@@ -119,7 +120,6 @@ export default class TransactionListComponent {
 
   clickSelectAccount(event: any) {
     const selectedAccountId = event.target.value;
-    console.log('Selected Account ID:', selectedAccountId);
     this.currentAccountId = selectedAccountId;
     this.findTransactionsById(selectedAccountId);
   }
@@ -138,6 +138,7 @@ export default class TransactionListComponent {
   }
 
   loadSpecificCategories() {
+    this.categoryTypesFilter = [];
     const uniqueCategories: KeyValueParameter[] = this.transactions.reduce((acc: KeyValueParameter[], current: Transaction) => {
       // Busca si la categoría ya existe en el acumulador
       const categoryIndex = acc.findIndex(category => category.key === current.category);
@@ -152,9 +153,17 @@ export default class TransactionListComponent {
       }
       return acc;
     }, []);
-    this.categoryTypesFilter = uniqueCategories;
-    // console.log('El resultado del filtrado  es ' + JSON.stringify(this.categoryTypesFilter));
-    this.categoryTypesFilter.push({ key: '', value: 'All types' });
+    uniqueCategories.forEach(
+      cate => {
+        this.categoryTypesFilter.push({
+          key: cate.key,
+          value: cate.value,
+          value2: cate.value2,
+          label: (cate.key + ' - ' + cate.value)
+        });
+      }
+    );
+    this.categoryTypesFilter.push({ key: '', value: 'All types', label: 'All types' });
     this.loadDataChartGroupByCategories();
   }
 
@@ -233,7 +242,7 @@ export default class TransactionListComponent {
 
 
   addTimeToDate(dateInput: string): string {
-    console.log('El date onput es::.::::::  ' + dateInput);
+
     if (dateInput !== null && dateInput !== undefined && dateInput !== '') {
       const hours = '00';
       const minutes = '00';

@@ -7,13 +7,13 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { ChartOptions } from '../../../../demo/chart & map/core-apex/core-apex.component';
 
 @Component({
-  selector: 'app-char-donut',
+  selector: 'app-char-pie',
   standalone: true,
   imports: [CommonModule, SharedModule, NgbDropdownModule, ColorPickerModule, NgApexchartsModule],
   templateUrl: './chart-pie.component.html',
   styleUrls: ['./chart-pie.component.scss']
 })
-export default class ChartDonutComponent {
+export default class ChartPieComponent {
 
   pipe: boolean = false;
   charPropertes: Partial<ChartOptions>;
@@ -23,10 +23,6 @@ export default class ChartDonutComponent {
 
   @Input()
   set itemsChart(itemsChart: any) {
-
-
-    console.log(`El resultado de items char es ::::: ${JSON.stringify(itemsChart)}`);
-
     this.charPropertes = this.restoreChart();
     this.items = itemsChart;
     let arraySerials: Array<any> = [];
@@ -78,11 +74,14 @@ export default class ChartDonutComponent {
       series: [],
       colors: [],
       chart: {
-        height: 150,
-        type: 'donut'
+        height: 320,
+        type: 'pie'
       },
       dataLabels: {
-        enabled: false
+        enabled: true,
+        dropShadow: {
+          enabled: false
+        }
       },
       plotOptions: {
         pie: {
@@ -92,26 +91,10 @@ export default class ChartDonutComponent {
         }
       },
       legend: {
-        show: false
-      },
-      tooltip: {
-        theme: 'datk'
-      },
-      grid: {
-        padding: {
-          top: 20,
-          right: 0,
-          bottom: 0,
-          left: 0
-        }
-      },
-
-      fill: {
-        opacity: [1, 1]
-      },
-      stroke: {
-        width: 0
+        show: true,
+        position: 'bottom'
       }
     };
   }
+
 }

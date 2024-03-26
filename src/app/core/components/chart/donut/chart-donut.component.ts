@@ -23,10 +23,6 @@ export default class ChartDonutComponent {
 
   @Input()
   set itemsChart(itemsChart: any) {
-
-
-    console.log(`El resultado de items char es ::::: ${JSON.stringify(itemsChart)}`);
-
     this.charPropertes = this.restoreChart();
     this.items = itemsChart;
     let arraySerials: Array<any> = [];
@@ -78,7 +74,7 @@ export default class ChartDonutComponent {
       series: [],
       colors: [],
       chart: {
-        height: 150,
+        height: 320,
         type: 'donut'
       },
       dataLabels: {
