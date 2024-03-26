@@ -77,7 +77,6 @@ export default class CreateTransactionComponent {
     ).subscribe(
       data => {
         this.transactionsType = data;
-        this.transactionsType.push({ key: '', value: 'All types' });
       }
     );
   }
@@ -112,17 +111,18 @@ export default class CreateTransactionComponent {
       this.isCreatingTransaction = false;
       this.transactionService_.getTransactionByTransactionId(Number(transactionParameter)).subscribe(
         data => {
-          console.log('' + data);
+          console.log('' + JSON.stringify(data));
           this.currentTransaction = data;
           this.transactionForm.setValue({
             accountId: data.accountId,
             value: data.value,
             type: data.type,
             date: data.date,
-            category: data.type,
-            transactionType: '',
+            category: data.category,
+            transactionType: data.type,
             description: data.description
           });
+          this.fillCategoriesByTransactionType(data.type);
           this.transactionForm.patchValue({
             category: data.category
           });
@@ -139,7 +139,12 @@ export default class CreateTransactionComponent {
   }
 
   onTransactionTypeChange(selectedTransactionType: any) {
-    this.categoryService_.getAllCategoryByTransactionType(selectedTransactionType.target.value).pipe(
+    this.fillCategoriesByTransactionType(selectedTransactionType.target.value);
+  }
+
+
+  fillCategoriesByTransactionType(selectedTransactionType: any) {
+    this.categoryService_.getAllCategoryByTransactionType(selectedTransactionType).pipe(
       catchError(error => {
         console.log('Error delete a account', error);
         return of([]);
@@ -150,6 +155,7 @@ export default class CreateTransactionComponent {
       }
     );
   }
+
 
   onCategoryChange(selectedCategory: any) {
     const category =
