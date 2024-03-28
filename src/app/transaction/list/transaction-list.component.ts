@@ -123,8 +123,57 @@ export default class TransactionListComponent {
   clickSelectAccount(event: any) {
     const selectedAccountId = event.target.value;
     this.currentAccountId = selectedAccountId;
-    this.findTransactionsById(selectedAccountId);
+    const { startDate, endDate } = this.getStartAndEndOfCurrentMonth();
+
+    this.transactionSearchForm.patchValue({
+      firstDate: this.formatDate(startDate),
+      endDate:this.formatDate(endDate)
+    });
+
+    this.transactionService_
+      .getAllTransactionByCriteria(this.currentAccountId,
+        startDate,
+        endDate,
+        '',
+        '')
+      .subscribe(
+        data => {
+          this.transactions = data;
+          this.loadChars();
+          this.loadSpecificCategories();
+        },
+        error => {
+          console.log('error consume getAllTransactionByCriteria ', error);
+        }
+      );
+
+    //this.findTransactionsById(selectedAccountId);
   }
+
+  getStartAndEndOfCurrentMonth() {
+    const now = new Date();
+
+    // Crear fechas para el primer y último día del mes actual
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    // Función para ajustar la fecha a la zona horaria de Colombia (UTC-5) y formatearla
+    function toColombiaISOStringPlusOneDay(date:any) {
+      // Ajustar fecha a UTC-5
+      const utcDate = new Date(date.getTime() - (5 * 60 * 60 * 1000));
+      // Sumar un día
+      utcDate.setDate(utcDate.getDate() + 1);
+      // Formatear a ISO sin segundos fraccionarios ni Z
+      return `${utcDate.getFullYear()}-${(utcDate.getMonth() + 1).toString().padStart(2, '0')}-${utcDate.getDate().toString().padStart(2, '0')}T${utcDate.getHours().toString().padStart(2, '0')}:${utcDate.getMinutes().toString().padStart(2, '0')}:00`;
+    }
+
+    // Retornar las fechas ajustadas y formateadas
+    return {
+      startDate: toColombiaISOStringPlusOneDay(firstDayOfMonth),
+      endDate: toColombiaISOStringPlusOneDay(lastDayOfMonth)
+    };
+  }
+
 
   findTransactionsById(accountId: number) {
     this.transactionService_.getAllTransactionByAccountId(accountId).subscribe(
@@ -260,6 +309,14 @@ export default class TransactionListComponent {
       );
   }
 
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    let year = date.getFullYear().toString();
+    let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Meses comienzan desde 0
+    let day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
 
   addTimeToDate(dateInput: string): string {
 
@@ -271,6 +328,21 @@ export default class TransactionListComponent {
       return `${dateInput}T${timeString}`;
     }
     return '';
+  }
+
+  convertToISODateTimeWithCurrentTime(dateInput: Date | string): string {
+    let date: Date;
+    if (typeof dateInput === 'string') {
+      date = new Date(dateInput);
+      if (dateInput.trim().length <= 10) {
+        const now = new Date();
+        date.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+      }
+    } else {
+      date = dateInput;
+    }
+    const isoDateTime = date.toISOString();
+    return isoDateTime;
   }
 
 
