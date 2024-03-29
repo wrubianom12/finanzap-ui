@@ -1,0 +1,48 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Accounts" [options]="false">
+      <h5>List Accounts</h5>
+      <hr />
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Account name</th>
+              <th>Account Type</th>
+              <th>Balance</th>
+              <th>Active</th>
+              <th>Total Amount</th>
+              <th>Debt to pay</th>
+              <th>Pay date</th>
+              <th>Cut date</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let account of accounts; let i = index">
+              <td>{{ account.name }}</td>
+              <td>{{ account.accountType }}</td>
+              <td>{{ account.balance | currency }}</td>
+              <td>{{ account.active ? "Yes" : "No" }}</td>
+              <td>{{ account.detailCreditAccount?.totalAmount | currency }}</td>
+              <td [class.highlight-debt]="isDebtCellHighlighted(account)">
+                {{ calculateDisplayBalance(account) }}
+              </td>
+              <td>{{ account.detailCreditAccount?.payDate | date:'d' }}</td>
+              <td>{{ account.detailCreditAccount?.cutDate | date:'d' }}</td>
+              <td>
+                <a class="btn btn-link-success" role="button" (click)="onSelectAccount(account)">Transactions</a>
+                <a class="btn btn-link-primary" role="button" (click)="onEditAccount(account)">Edit</a>
+                <a class="btn btn-link-danger" role="button" (click)="onSelectDeleteaccount(account)">Delete</a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </app-card>
+    <app-transaction-list *ngIf="currentAccount.accountId"
+                          [datoRecibido]="currentAccount.accountId"></app-transaction-list>
+  </div>
+</div>

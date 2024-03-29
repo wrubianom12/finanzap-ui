@@ -52,6 +52,12 @@ const routes: Routes = [
         path: 'account/:accountId',
         loadComponent: () => import('./account/create/create-account.component')
       },
+
+      {
+        path: 'budget',
+        loadComponent: () => import('./budget/create/create-budget.component')
+      },
+
       {
         path: 'tables',
         loadComponent: () => import('./demo/forms & tables/tbl-bootstrap/tbl-bootstrap.component')

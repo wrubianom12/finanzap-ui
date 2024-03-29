@@ -1,0 +1,113 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Accounts" [options]="false">
+      <h5>Budget</h5>
+      <hr />
+      <div class="row">
+        <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()">
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label for="name" class="col-sm-3 col-form-label">Name</label>
+              <div class="col-sm-9">
+                <input type="text" formControlName="name" class="form-control" id="name"
+                       placeholder="Budget name" />
+              </div>
+              <small *ngIf="budgetForm.get('name')?.invalid && budgetForm.get('name')?.touched" style="color: red;">
+                Name is required.
+              </small>
+            </div>
+
+            <div class="form-group row">
+              <label for="baseAmount" class="col-sm-3 col-form-label">Base amount</label>
+              <div class="col-sm-9">
+                <input type="text" formControlName="baseAmount" class="form-control" id="baseAmount"
+                       placeholder="Budget name" />
+              </div>
+              <small *ngIf="budgetForm.get('baseAmount')?.invalid && budgetForm.get('baseAmount')?.touched"
+                     style="color: red;">
+                Base amount is required.
+              </small>
+            </div>
+
+            <div class="form-group row">
+              <label for="totalPlanned" class="col-sm-3 col-form-label">Total Planned</label>
+              <div class="col-sm-9">
+                <input type="text" formControlName="totalPlanned" class="form-control" id="totalPlanned" readonly
+                       placeholder="Total planned" />
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12">
+            <h5>Detail budget</h5>
+            <hr />
+            <div class="row row-cols-md-auto g-3 align-items-center">
+              <div class="col-12">
+                <label>Add category to budget</label>
+              </div>
+              <div [formGroup]="budgetDetailForm" class="col-12">
+                <label for="inlineFormSelectPref">Category type</label>
+                <select class="form-select" id="inlineFormSelectPref" formControlName="categoryType">
+                  <option *ngFor="let category of categories" [value]="category.code">{{ category.name }}</option>
+                </select>
+              </div>
+
+              <div [formGroup]="budgetDetailForm" class="col-12">
+                <label for="inlineFormInputName">Total Planned</label>
+                <input type="text" class="form-control" id="inlineFormInputName" formControlName="amountPlanned">
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn btn-success" (click)="addBudgetDetailToBudget()">add</button>
+              </div>
+            </div>
+            <hr />
+
+
+            <div class="row">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                  <tr>
+                    <th>Detail Id</th>
+                    <th>Category type</th>
+                    <th>Category type name</th>
+                    <th>Amount planned</th>
+                    <th>Actions</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let budgetDetail of budgetDetailList; let i = index">
+                    <td>{{ budgetDetail.id }}</td>
+                    <td>{{ budgetDetail.categoryType }}</td>
+                    <td>{{ budgetDetail.categoryTypeName }}</td>
+                    <td>{{ budgetDetail.amountPlanned | currency }}</td>
+                    <td>
+                      <a class="btn btn-link-danger" role="button"
+                         (click)="onSelectDeleteBudget(budgetDetail)">Delete</a>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="row">
+
+      </div>
+
+
+    </app-card>
+  </div>
+</div>
