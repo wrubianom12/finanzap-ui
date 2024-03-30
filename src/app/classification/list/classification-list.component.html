@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Classifications" [options]="false">
+      <h5>Classification list</h5>
+      <hr />
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Percent</th>
+            <th>Total Categories associated</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let classification of classificationList; let i = index">
+            <td>{{ classification.code }}</td>
+            <td>{{ classification.name }}</td>
+            <td>{{ classification.percent }}</td>
+            <td>{{ classification.categories?.length }}</td>
+            <td>
+              <a class="btn btn-link-success" role="button" (click)="onSelectClassification(classification)">Edit</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-card>
+  </div>
+</div>

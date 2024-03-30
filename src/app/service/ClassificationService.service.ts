@@ -17,6 +17,15 @@ export class ClassificationService {
     return this.http.post<string>(`${this.resourceUrl}`, classificationModel);
   }
 
+  getAllClassification(): Observable<ClassificationModel[]> {
+    return this.http.get<ClassificationModel[]>(`${this.resourceUrl}`);
+  }
+
+  getClassificationById(classificationId: number): Observable<ClassificationModel> {
+    return this.http.get<ClassificationModel>(`${this.resourceUrl}/${classificationId}`);
+  }
+
+
   updateClassification(classificationModel: ClassificationModel): Observable<string> {
     return this.http.put<string>(`${this.resourceUrl}`, classificationModel);
   }

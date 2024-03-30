@@ -78,7 +78,14 @@ export const NavigationItems: NavigationItem[] = [
         id: 'Classification',
         title: 'Classification',
         type: 'item',
-        url: '/classification',
+        url: '/classification/c',
+        icon: 'feather icon-home'
+      },
+      {
+        id: 'ClassificationList',
+        title: 'Classification List',
+        type: 'item',
+        url: '/classification-list',
         icon: 'feather icon-home'
       }
     ]

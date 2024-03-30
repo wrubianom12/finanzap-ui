@@ -59,8 +59,13 @@ const routes: Routes = [
       },
 
       {
-        path: 'classification',
+        path: 'classification/:classificationId',
         loadComponent: () => import('./classification/create/classification.component')
+      },
+
+      {
+        path: 'classification-list',
+        loadComponent: () => import('./classification/list/classification-list.component')
       },
 
       {

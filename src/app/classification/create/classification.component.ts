@@ -4,7 +4,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Category } from '../../core/model/Category';
 import { CategoryService } from '../../service/CategoryService.service';
 import { KeyValueParameter } from '../../core/model/KeyValueParameter';
@@ -13,7 +13,6 @@ import { catchError, of } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ClassificationModel } from '../../core/model/ClassificationModel';
 import { ClassificationService } from '../../service/ClassificationService.service';
-import { Transaction } from '../../core/model/Transaction';
 
 @Component({
   selector: 'app-create-classification',
@@ -26,7 +25,7 @@ export default class ClassificationComponent {
 
 
   classificationTypeForm: FormGroup;
-  currentClassification: ClassificationModel = { classificationId: undefined, name: '', code: '', percent: 0 };
+  currentClassification: ClassificationModel = { id: undefined, name: '', code: '', percent: 0 };
   isCreatingClaasificationForm: boolean;
   filterCategory: string = '';
   filterTransactionType: string = '';
@@ -36,10 +35,11 @@ export default class ClassificationComponent {
   constructor(public categoryService_: CategoryService,
               public classificationService_: ClassificationService,
               public transactionTypeService_: TransactionTypeService,
+              private activatedRoute: ActivatedRoute,
               private router: Router) {
     this.isCreatingClaasificationForm = true;
     this.classificationTypeForm = new FormGroup({
-      classificationId: new FormControl(''),
+      id: new FormControl(''),
       name: new FormControl('', Validators.required),
       code: new FormControl(null, [Validators.required]),
       percent: new FormControl(null, [Validators.required, Validators.pattern(/^\d+$/)])
@@ -51,10 +51,41 @@ export default class ClassificationComponent {
   }
 
   initForm(): void {
-    this.currentClassification = { classificationId: undefined, name: '', code: '', percent: 0 };
-    this.isCreatingClaasificationForm = true;
     this.loadAllCategories();
     this.loadTransactionType();
+    this.currentClassification = { id: undefined, name: '', code: '', percent: 0 };
+    this.isCreatingClaasificationForm = true;
+
+    const classificationParameter = this.activatedRoute.snapshot.paramMap.get('classificationId');
+    if (classificationParameter === 'c') {
+      this.isCreatingClaasificationForm = true;
+      this.classificationTypeForm.reset();
+      this.classificationTypeForm.reset({
+        id: undefined,
+        name: '',
+        code: '',
+        percent: undefined
+      });
+    } else {
+      this.isCreatingClaasificationForm = false;
+      this.classificationService_.getClassificationById(Number(classificationParameter)).pipe(
+        catchError(error => {
+          console.log('Error al cargar la clasificacion', error);
+          return of({ id: undefined, name: '', code: '', percent: 0 });
+        })
+      ).subscribe(data => {
+          console.log('La clasificacion es ' + JSON.stringify(data));
+          this.currentClassification = data;
+          this.classificationTypeForm.reset({
+            id: this.currentClassification.id,
+            name: this.currentClassification.name,
+            code: this.currentClassification.code,
+            percent: this.currentClassification.percent
+          });
+          this.markSelectedCategories();
+        }
+      );
+    }
   }
 
   loadTransactionType() {
@@ -79,6 +110,15 @@ export default class ClassificationComponent {
         this.categories = data;
       }
     );
+  }
+
+  markSelectedCategories() {
+    if (this.currentClassification && this.currentClassification.categories) {
+      const selectedCategoryIds = new Set(this.currentClassification.categories.map(cat => cat.categoryId));
+      this.categories.forEach(cat => {
+        cat.selected = selectedCategoryIds.has(cat.categoryId);
+      });
+    }
   }
 
   onSubmit() {
@@ -137,25 +177,11 @@ export default class ClassificationComponent {
   }
 
 
-  deleteCategory(categoryId: number) {
-    this.categoryService_.deleteCategory(categoryId).pipe(
-      catchError(error => {
-        console.log('Error delete a category', error);
-        return of([]);
-      })
-    ).subscribe(
-      data => {
-        Swal.fire('', 'The category was deleted', 'success');
-        this.loadAllCategories();
-      }
-    );
-  }
-
   resetForm() {
     this.isCreatingClaasificationForm = true;
     this.validButton();
     this.classificationTypeForm.reset({
-      categoryId: null,
+      id: null,
       name: '',
       code: '',
       transactionTypeEnum: ''
@@ -165,22 +191,6 @@ export default class ClassificationComponent {
   validButton() {
 
   }
-
-
-  search() {
-    this.categoryService_.getAllCategoryByTransactionType(1)
-      .pipe(
-        catchError(error => {
-          console.log('Error al cargar las categorías', error);
-          return of([]);
-        })
-      ).subscribe(
-      data => {
-        this.categories = data;
-      }
-    );
-  }
-
 
   get filteredCategories() {
     return this.categories.filter(category =>

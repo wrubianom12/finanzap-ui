@@ -1,7 +1,7 @@
 import { Category } from './Category';
 
 export interface ClassificationModel {
-  classificationId?: number,
+  id?: number,
   code: string;
   name: string;
   percent: number;
