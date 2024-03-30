@@ -3,4 +3,6 @@ export interface Category {
   code: string;
   name: string;
   transactionTypeEnum: string;
+
+  selected?: boolean;
 }

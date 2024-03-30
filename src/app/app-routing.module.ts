@@ -59,6 +59,11 @@ const routes: Routes = [
       },
 
       {
+        path: 'classification',
+        loadComponent: () => import('./classification/create/classification.component')
+      },
+
+      {
         path: 'tables',
         loadComponent: () => import('./demo/forms & tables/tbl-bootstrap/tbl-bootstrap.component')
       },
