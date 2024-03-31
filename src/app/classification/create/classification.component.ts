@@ -74,7 +74,7 @@ export default class ClassificationComponent {
           return of({ id: undefined, name: '', code: '', percent: 0 });
         })
       ).subscribe(data => {
-          console.log('La clasificacion es ' + JSON.stringify(data));
+          console.log('La clasificacion es ' + JSON.stringify(data).length);
           this.currentClassification = data;
           this.classificationTypeForm.reset({
             id: this.currentClassification.id,
@@ -128,17 +128,11 @@ export default class ClassificationComponent {
         ...this.classificationTypeForm.value
       };
       const listCategoriesSelected = this.getSelectedCategories();
-
-      console.log('El formularios es ' + JSON.stringify(classificationData));
-      console.log('Las categorias seleccionadas son  ' + JSON.stringify(listCategoriesSelected));
-
       if (listCategoriesSelected && listCategoriesSelected.length > 0) {
         classificationData.categories = listCategoriesSelected;
-        if (this.isCreatingClaasificationForm) {
+
           this.createClassification(classificationData);
-        } else {
-          this.updateClassification(classificationData);
-        }
+
       }
     } else {
       console.log('Formulario no válido');
@@ -156,6 +150,7 @@ export default class ClassificationComponent {
         Swal.fire('', 'The classification was created', 'success');
         this.loadAllCategories();
         this.resetForm();
+        this.router.navigate(['/classification-list']);
       }
     );
   }
@@ -172,6 +167,7 @@ export default class ClassificationComponent {
         Swal.fire('', 'The classification was updated', 'success');
         this.loadAllCategories();
         this.resetForm();
+        this.router.navigate(['/classification-list']);
       }
     );
   }

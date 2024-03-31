@@ -1,3 +1,5 @@
+import { ClassificationModel } from './ClassificationModel';
+
 export interface Category {
   categoryId?: number,
   code: string;
@@ -5,4 +7,5 @@ export interface Category {
   transactionTypeEnum: string;
 
   selected?: boolean;
+  classifications?: ClassificationModel[];
 }

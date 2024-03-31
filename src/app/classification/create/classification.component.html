@@ -1,12 +1,10 @@
 <div class="row">
   <div class="col-sm-12">
     <app-card cardTitle="Classification" [options]="false">
-      <h5>Create classification</h5>
+      <h5>{{ isCreatingClaasificationForm ? "Create" : "Update" }}classification</h5>
       <hr />
       <div class="row">
-
         <form [formGroup]="classificationTypeForm" (ngSubmit)="onSubmit()">
-
           <div class="col-md-6">
 
             <div class="form-group row" *ngIf="!isCreatingClaasificationForm">
