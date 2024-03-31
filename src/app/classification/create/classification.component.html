@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-sm-12">
     <app-card cardTitle="Classification" [options]="false">
-      <h5>{{ isCreatingClaasificationForm ? "Create" : "Update" }}classification</h5>
+      <h5>{{ isCreatingClaasificationForm ? "Create" : "Update" }} classification</h5>
       <hr />
       <div class="row">
         <form [formGroup]="classificationTypeForm" (ngSubmit)="onSubmit()">
@@ -78,6 +78,21 @@
                 Transaction Type
                 <input type="text" [(ngModel)]="filterTransactionType" placeholder="Filter..." class="form-control">
               </th>
+              <th>
+                Classification
+                <div>
+                  <label>
+                    <input type="radio" name="classificationFilter" [(ngModel)]="filterClassificationPresence" value="all" checked> Todos
+                  </label>
+                  <label>
+                    <input type="radio" name="classificationFilter" [(ngModel)]="filterClassificationPresence" value="with"> Con clasificaciones
+                  </label>
+                  <label>
+                    <input type="radio" name="classificationFilter" [(ngModel)]="filterClassificationPresence" value="without"> Sin clasificaciones
+                  </label>
+                </div>
+              </th>
+
               <th>Select</th>
             </tr>
             </thead>
@@ -87,6 +102,15 @@
               <td>{{ category.code }}</td>
               <td>{{ category.name }}</td>
               <td>{{ category.transactionTypeEnum }}</td>
+
+              <td>
+                <ul>
+                  <li *ngFor="let classification of category.classifications">
+                    {{ classification.name }}
+                  </li>
+                </ul>
+              </td>
+
               <td>
                 <input type="checkbox" [(ngModel)]="category.selected">
               </td>

@@ -28,6 +28,7 @@ export default class ClassificationComponent {
   currentClassification: ClassificationModel = { id: undefined, name: '', code: '', percent: 0 };
   isCreatingClaasificationForm: boolean;
   filterCategory: string = '';
+  filterClassificationPresence: string = 'all';
   filterTransactionType: string = '';
   categories: Category[] = [];
   transactionsType: KeyValueParameter[] = [];
@@ -51,13 +52,15 @@ export default class ClassificationComponent {
   }
 
   initForm(): void {
-    this.loadAllCategories();
+    this.filterCategory = '';
+    this.filterTransactionType = '';
     this.loadTransactionType();
     this.currentClassification = { id: undefined, name: '', code: '', percent: 0 };
     this.isCreatingClaasificationForm = true;
 
     const classificationParameter = this.activatedRoute.snapshot.paramMap.get('classificationId');
     if (classificationParameter === 'c') {
+      this.loadAllCategories();
       this.isCreatingClaasificationForm = true;
       this.classificationTypeForm.reset();
       this.classificationTypeForm.reset({
@@ -74,7 +77,6 @@ export default class ClassificationComponent {
           return of({ id: undefined, name: '', code: '', percent: 0 });
         })
       ).subscribe(data => {
-          console.log('La clasificacion es ' + JSON.stringify(data).length);
           this.currentClassification = data;
           this.classificationTypeForm.reset({
             id: this.currentClassification.id,
@@ -82,7 +84,9 @@ export default class ClassificationComponent {
             code: this.currentClassification.code,
             percent: this.currentClassification.percent
           });
-          this.markSelectedCategories();
+          if (this.currentClassification && this.currentClassification.categories) {
+            this.markSelectedCategories(this.currentClassification.categories);
+          }
         }
       );
     }
@@ -112,13 +116,21 @@ export default class ClassificationComponent {
     );
   }
 
-  markSelectedCategories() {
-    if (this.currentClassification && this.currentClassification.categories) {
-      const selectedCategoryIds = new Set(this.currentClassification.categories.map(cat => cat.categoryId));
-      this.categories.forEach(cat => {
-        cat.selected = selectedCategoryIds.has(cat.categoryId);
-      });
-    }
+  markSelectedCategories(currentcategories: Category[]) {
+    this.categoryService_.getAllCategories().pipe(
+      catchError(error => {
+        console.log('Error al cargar las categorías', error);
+        return of([]);
+      })
+    ).subscribe(
+      data => {
+        this.categories = data;
+        const selectedCategoryIds = new Set(currentcategories.map(cat => cat.categoryId));
+        this.categories.forEach(cat => {
+          cat.selected = selectedCategoryIds.has(cat.categoryId);
+        });
+      }
+    );
   }
 
   onSubmit() {
@@ -131,7 +143,7 @@ export default class ClassificationComponent {
       if (listCategoriesSelected && listCategoriesSelected.length > 0) {
         classificationData.categories = listCategoriesSelected;
 
-          this.createClassification(classificationData);
+        this.createClassification(classificationData);
 
       }
     } else {
@@ -163,7 +175,6 @@ export default class ClassificationComponent {
       })
     ).subscribe(
       data => {
-        console.log(data);
         Swal.fire('', 'The classification was updated', 'success');
         this.loadAllCategories();
         this.resetForm();
@@ -189,10 +200,21 @@ export default class ClassificationComponent {
   }
 
   get filteredCategories() {
-    return this.categories.filter(category =>
-      category.name.toLowerCase().includes(this.filterCategory.toLowerCase()) &&
-      category.transactionTypeEnum.toLowerCase().includes(this.filterTransactionType.toLowerCase())
-    );
+    return this.categories.filter(category => {
+      const matchesName = category.name.toLowerCase().includes(this.filterCategory.toLowerCase());
+      const matchesTransactionType = category.transactionTypeEnum.toLowerCase().includes(this.filterTransactionType.toLowerCase());
+
+      let matchesClassificationFilter: undefined | boolean = true; // Por defecto, incluimos todas las categorías.
+
+      // Aplicamos el filtro de clasificación según la opción seleccionada.
+      if (this.filterClassificationPresence === 'with') {
+        matchesClassificationFilter = category.classifications && category.classifications.length > 0;
+      } else if (this.filterClassificationPresence === 'without') {
+        matchesClassificationFilter = !category.classifications || category.classifications.length === 0;
+      }
+
+      return matchesName && matchesTransactionType && matchesClassificationFilter;
+    });
   }
 
   getSelectedCategories(): Category[] {
