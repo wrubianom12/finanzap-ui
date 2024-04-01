@@ -17,82 +17,130 @@
               </small>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row" *ngIf=" !isFreezing ">
               <label for="baseAmount" class="col-sm-3 col-form-label">Base amount</label>
               <div class="col-sm-9">
                 <input type="text" formControlName="baseAmount" class="form-control" id="baseAmount"
-                       placeholder="Budget name" />
+                       placeholder="Base amount" />
               </div>
               <small *ngIf="budgetForm.get('baseAmount')?.invalid && budgetForm.get('baseAmount')?.touched"
                      style="color: red;">
-                Base amount is required.
+                Base amount is required and is just numeric
               </small>
             </div>
+
+            <div class="form-group row" *ngIf=" isFreezing ">
+              <label class="col-sm-3 col-form-label">Base amount</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" readonly
+                       [value]="budgetForm.get('baseAmount')?.value | currency" />
+              </div>
+            </div>
+
 
             <div class="form-group row">
               <label for="totalPlanned" class="col-sm-3 col-form-label">Total Planned</label>
               <div class="col-sm-9">
-                <input type="text" formControlName="totalPlanned" class="form-control" id="totalPlanned" readonly
-                       placeholder="Total planned" />
+                <input type="text" class="form-control" id="totalPlanned"
+                       readonly [value]="formattedTotalPlanned" placeholder="Total planned" />
               </div>
             </div>
+
+
+            <div class="form-group row" *ngIf=" isFreezing ">
+              <label class="col-sm-3 col-form-label">Diff amount</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" readonly
+                       [value]="(budgetForm.get('baseAmount')?.value - budgetForm.get('totalPlanned')?.value ) | currency" />
+              </div>
+            </div>
+
+            <div *ngIf=" !isFreezing " class="col-12">
+              <button type="button" class="btn btn-success" (click)="freezingBudget()">Free</button>
+            </div>
+
+            <div *ngIf=" isFreezing " class="col-12">
+              <button type="button" class="btn btn-success" (click)="unfreezingBudget()">Unfree</button>
+            </div>
+
           </div>
-          <div class="col-sm-12">
+          <div class="col-sm-12" *ngIf=" isFreezing ">
             <h5>Detail budget</h5>
             <hr />
             <div class="row row-cols-md-auto g-3 align-items-center">
               <div class="col-12">
-                <label>Add category to budget</label>
-              </div>
-              <div [formGroup]="budgetDetailForm" class="col-12">
-                <label for="inlineFormSelectPref">Category type</label>
-                <select class="form-select" id="inlineFormSelectPref" formControlName="categoryType">
-                  <option *ngFor="let category of categories" [value]="category.code">{{ category.name }}</option>
+                <label for="inlineFormSelectPref">Classification</label>
+                <select class="form-select" id="inlineFormSelectPref"
+                        (change)="addToCurrentClassification($event)">
+                  <option *ngFor="let classification of classifications"
+                          [value]="classification.code">{{ classification.name }}
+                  </option>
                 </select>
               </div>
 
-              <div [formGroup]="budgetDetailForm" class="col-12">
-                <label for="inlineFormInputName">Total Planned</label>
-                <input type="text" class="form-control" id="inlineFormInputName" formControlName="amountPlanned">
+              <div *ngIf=" currentClassification?.id !== undefined " class="col-12">
+                <label>Name</label>
+                <input class="form-control" [value]="currentClassification.name">
               </div>
-              <div class="col-12">
-                <button type="button" class="btn btn-success" (click)="addBudgetDetailToBudget()">add</button>
+              <div *ngIf=" currentClassification?.id !== undefined " class="col-12">
+                <button type="button" class="btn btn-success" (click)="addClassificationToBudget()">add</button>
               </div>
             </div>
             <hr />
-
-
+          </div>
+          <div class="col-sm-12">
             <div class="row">
-              <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                  <tr>
-                    <th>Detail Id</th>
-                    <th>Category type</th>
-                    <th>Category type name</th>
-                    <th>Amount planned</th>
-                    <th>Actions</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr *ngFor="let budgetDetail of budgetDetailList; let i = index">
-                    <td>{{ budgetDetail.id }}</td>
-                    <td>{{ budgetDetail.categoryType }}</td>
-                    <td>{{ budgetDetail.categoryTypeName }}</td>
-                    <td>{{ budgetDetail.amountPlanned | currency }}</td>
-                    <td>
-                      <a class="btn btn-link-danger" role="button"
-                         (click)="onSelectDeleteBudget(budgetDetail)">Delete</a>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
+              <div class="col-12">
+                <div *ngFor="let classification of classificationsSelected; let i = index" class="accordion"
+                     id="accordionClassification">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" [attr.id]="'heading'+i">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                              [attr.data-bs-target]="'#collapse'+i" aria-expanded="true"
+                              [attr.aria-controls]="'collapse'+i">
+                        {{ classification.name }} - {{ classification.percent }}%
+                      </button>
+                    </h2>
+                    <div [attr.id]="'collapse'+i" class="accordion-collapse collapse show"
+                         [attr.aria-labelledby]="'heading'+i" data-bs-parent="#accordionClassification">
+                      <div class="accordion-body">
+                        <table class="table">
+                          <thead>
+                          <tr>
+                            <th>id</th>
+                            <th>Category Name</th>
+                            <th>Amount planned</th>
+                            <th>Input Amount planned</th>
+
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <tr *ngFor="let category of classification.categories; let j = index">
+                            <td>{{ category.categoryId }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.amountPlanned | currency }}</td>
+                            <td>
+                              <input type="number" class="form-control"
+                                     [(ngModel)]="category.amountPlanned"
+                                     (ngModelChange)="updateTotalPlanned()"
+                                     [ngModelOptions]="{standalone: true}">
+                            </td>
+
+                          </tr>
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
+
           </div>
 
-          <div class="col-md-6">
+          <div class="col-md-6" *ngIf=" isFreezing ">
             <div class="form-group row">
               <div class="col-sm-10">
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -102,11 +150,6 @@
 
         </form>
       </div>
-
-      <div class="row">
-
-      </div>
-
 
     </app-card>
   </div>

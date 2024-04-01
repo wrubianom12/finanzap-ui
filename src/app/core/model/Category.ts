@@ -8,4 +8,7 @@ export interface Category {
 
   selected?: boolean;
   classifications?: ClassificationModel[];
+
+  amountPlanned?: number;
+
 }

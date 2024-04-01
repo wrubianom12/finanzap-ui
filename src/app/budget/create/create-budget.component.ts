@@ -3,14 +3,16 @@ import { Component } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BudgetService } from '../../service/BudgetService.service';
 import { catchError, of } from 'rxjs';
 import { Budget } from '../../core/model/Budget';
+import { ClassificationModel } from '../../core/model/ClassificationModel';
+import { ClassificationService } from '../../service/ClassificationService.service';
+import Swal from 'sweetalert2';
 import { BudgetDetail } from '../../core/model/BudgetDetail';
 import { Category } from '../../core/model/Category';
-import { CategoryService } from '../../service/CategoryService.service';
+import { ngDebug } from '@angular/cli/src/utilities/environment-options';
 
 
 @Component({
@@ -22,133 +24,195 @@ import { CategoryService } from '../../service/CategoryService.service';
 })
 export default class CreateBudgetComponent {
 
-  budgetDetailList: BudgetDetail[] = [];
-  budgetDetailForm: FormGroup;
+  currentClassification: ClassificationModel = { name: '', code: '', percent: 0 };
+  classificationsSelected: ClassificationModel[] = [];
   budgetForm: FormGroup;
-  categories: Category[] = [];
+  classifications: ClassificationModel[] = [];
+
+  isFreezing: boolean = false;
 
   constructor(public budgetService_: BudgetService,
-              public categoryService_: CategoryService,
-              private activatedRoute: ActivatedRoute,
-              private router: Router,
-              private fb: FormBuilder) {
+              public classificationService_: ClassificationService) {
     this.budgetForm = new FormGroup({
-      name: new FormControl('', Validators.required),
-      baseAmount: new FormControl(0, Validators.required),
+      name: new FormControl('Presupuesto general', Validators.required),
+      baseAmount: new FormControl(10000000, [Validators.required, Validators.pattern(/^\d+$/)]),
       totalPlanned: new FormControl(0, Validators.required),
       totalActual: new FormControl(0, Validators.required)
     });
-    this.budgetDetailForm = this.fb.group({
-      amountPlanned: new FormControl(null, [Validators.required, Validators.pattern(/^\d+$/)]),
-      categoryType: new FormControl('', Validators.required)
-    });
+    this.isFreezing = false;
   }
 
   ngOnInit(): void {
     this.initForm();
-    this.loadCategories();
+    this.loadClassifications();
   }
 
   initForm(): void {
 
   }
 
-  loadCategories() {
-    this.categoryService_.getAllCategories().pipe(
+  loadClassifications() {
+    this.classificationService_.getAllClassification().pipe(
       catchError(error => {
         console.log('Error loadCategories a account', error);
         return of([]);
       })
     ).subscribe(
       data => {
-        this.categories = data;
+        this.classifications = data;
+        this.classifications.unshift({ id: 0, name: 'Seleccione una opcion', code: '', percent: 0 });
       }
     );
   }
 
 
-  onSubmit() {
+  freezingBudget() {
     this.budgetForm.markAllAsTouched();
     if (this.budgetForm.valid) {
+      this.isFreezing = true;
+    }
+  }
+
+  unfreezingBudget() {
+    this.isFreezing = false;
+  }
+
+
+  get formattedTotalPlanned(): string {
+    const totalPlanned = this.budgetForm.get('totalPlanned')?.value;
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalPlanned);
+  }
+
+  updateTotalPlanned() {
+    let total = 0;
+    this.classificationsSelected.forEach(classification => {
+      classification?.categories?.forEach(category => {
+        const amount = Number(category.amountPlanned) || 0;
+        total += amount;
+      });
+    });
+    this.budgetForm.patchValue({
+      totalPlanned: total
+    });
+  }
+
+  addClassificationToBudget() {
+    if (this.currentClassification && this.currentClassification.id !== undefined && this.currentClassification.id > 0) {
+      const exists = this.classificationsSelected.some(classification =>
+        classification.id === this.currentClassification.id
+      );
+      if (!exists) {
+        this.classificationsSelected.push(this.currentClassification);
+      } else {
+        Swal.fire({
+          title: 'Información',
+          text: 'La clasificación ya está seleccionada. Por favor, elige otra.',
+          icon: 'info',
+          confirmButtonText: 'Entendido'
+        });
+      }
+    } else {
+      Swal.fire({
+        title: 'Información',
+        text: 'Seleccione una clasificación',
+        icon: 'info',
+        confirmButtonText: 'Entendido'
+      });
+    }
+  }
+
+  addToCurrentClassification(event: any) {
+    if (event) {
+      const selectedClassification =
+        this.classifications.find(classification => classification.code === event.target.value);
+      if (selectedClassification) {
+        this.currentClassification = selectedClassification;
+      }
+    }
+  }
+
+  validarAmountPlanned(): string[] {
+    const classifications: string[] = [];
+    for (const classification of this.classificationsSelected) {
+      const categoriaSinAmountPlanned = classification.categories?.find(category => category.amountPlanned == null);
+      if (categoriaSinAmountPlanned) {
+        classifications.push(classification.name);
+      }
+    }
+    return classifications;
+  }
+
+  onSubmit() {
+    console.log(`Las categorias seleccionadas son ${JSON.stringify(this.classificationsSelected)}`);
+    const classificationWithoutCategoriesValid: string[] = this.validarAmountPlanned();
+    if (classificationWithoutCategoriesValid.length > 0) {
+      Swal.fire({
+        title: 'Información',
+        text: `Tienes clasificaciones con categorias sin ammount planned ${JSON.stringify(classificationWithoutCategoriesValid)}`,
+        icon: 'info',
+        confirmButtonText: 'Entendido'
+      });
+    } else {
+      const budgetDetailList: BudgetDetail[] = [];
+      this.classificationsSelected.forEach(classification => {
+        const details = this.convertCategoriesToBudgetDetails(classification.categories, classification.code);
+        budgetDetailList.push(...details);
+      });
 
       const budgetData: Budget = {
         ...this.budgetForm.value,
         userId: undefined
       };
-      budgetData.budgetDetails = this.budgetDetailList;
+
+      budgetData.budgetDetails = budgetDetailList;
       this.createBudget(budgetData);
-    } else {
-      console.log('Formulario no válido');
+
     }
   }
+
 
   createBudget(budgetData: Budget) {
     this.budgetService_.createBudget(budgetData)
       .pipe(
         catchError(error => {
           console.log('Error al crear createBudget', error);
+          Swal.fire({
+            title: 'Información',
+            text: `Ocurrio un error al crear el presupuesto`,
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+          });
           return of([]);
         })
       ).subscribe(
       data => {
-        console.log('' + data);
+        if (data) {
+          Swal.fire({
+            title: 'Información',
+            text: `Se creó correctamente el presupuesto `,
+            icon: 'info',
+            confirmButtonText: 'Entendido'
+          });
+        }
       }
     );
   }
 
-  addBudgetDetailToBudget() {
-    console.log('Se agrega detail ' + JSON.stringify(this.budgetDetailForm.value));
-
-    this.budgetDetailForm.markAllAsTouched();
-    if (this.budgetDetailForm.valid) {
-      const budgetDetail: BudgetDetail = {
-        ...this.budgetDetailForm.value,
-        id: undefined
+  convertCategoriesToBudgetDetails(categories: Category[] | undefined, classificationCode: string): BudgetDetail[] {
+    const budgetDetails: BudgetDetail[] = [];
+    categories?.forEach(category => {
+      const detail: BudgetDetail = {
+        id: undefined,
+        categoryType: category.code,
+        classificationCode: classificationCode,
+        categoryTypeName: category.name,
+        amountPlanned: category.amountPlanned ?? 0,
+        amountActual: 0
       };
-      const isPresent = this.hasCategoryType(budgetDetail.categoryType);
-
-
-      this.categoryService_.getCategorybyCode(budgetDetail.categoryType).pipe(
-        catchError(error => {
-          console.log('Error loadCategories a account', error);
-          return of([]);
-        })
-      ).subscribe(
-        data => {
-          if ('name' in data) {
-            budgetDetail.categoryTypeName = data.name;
-            if (!isPresent) {
-              const accum = Number(this.budgetForm.value.totalPlanned) + Number(budgetDetail.amountPlanned);
-              this.budgetForm.patchValue({
-                totalPlanned: accum,
-                totalActual: 0
-              });
-              this.budgetDetailList.push(budgetDetail);
-
-              this.budgetDetailForm.reset({
-                totalPlanned: 0,
-                totalActual: 0
-              });
-            }
-          }
-        }
-      );
-    }
+      budgetDetails.push(detail);
+    });
+    return budgetDetails;
   }
 
-  onSelectDeleteBudget(budgetDetail: BudgetDetail) {
-    console.log('El busget  eliminar es ' + budgetDetail);
-    this.removeBudgetDetailByCategoryType(budgetDetail.categoryType);
-  }
-
-
-  removeBudgetDetailByCategoryType(categoryTypeToRemove: string) {
-    this.budgetDetailList = this.budgetDetailList.filter(budgetDetail => budgetDetail.categoryType !== categoryTypeToRemove);
-  }
-
-
-  hasCategoryType(categoryType: string): boolean {
-    return this.budgetDetailList.some(budgetDetail => budgetDetail.categoryType === categoryType);
-  }
 
 }
