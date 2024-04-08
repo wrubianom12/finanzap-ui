@@ -1,0 +1,40 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Budget" [options]="false">
+      <h5>Budget list</h5>
+      <hr />
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Budget id</th>
+              <th>Name</th>
+              <th>Base planned</th>
+              <th>Total planned</th>
+              <th>Diff planned</th>
+              <th>Budget Detail total </th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let budget of budgetList; let i = index">
+              <td>{{ budget.id }}</td>
+              <td>{{ budget.name }}</td>
+              <td>{{ budget.baseAmount | currency }}</td>
+              <td>{{ budget.totalPlanned | currency }}</td>
+              <td>{{ (budget.baseAmount - budget.totalPlanned) | currency }}</td>
+              <td>{{ budget.budgetDetails?.length }}</td>
+              <td>
+                <a class="btn btn-link-success" role="button" (click)="onSelectBudget(budget)">View</a>
+                <a class="btn btn-link-primary" role="button" (click)="onEditBudget(budget)">Edit</a>
+                <a class="btn btn-link-danger" role="button" (click)="onSelectDeleteBudger(budget)">Delete</a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>

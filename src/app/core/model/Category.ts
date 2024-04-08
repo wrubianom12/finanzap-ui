@@ -11,4 +11,6 @@ export interface Category {
 
   amountPlanned?: number;
 
+  budgetDetailId?: number;
+
 }

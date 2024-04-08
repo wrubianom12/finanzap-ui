@@ -107,27 +107,24 @@
                         <table class="table">
                           <thead>
                           <tr>
-                            <th>id</th>
+
                             <th>Category Name</th>
                             <th>Amount planned</th>
                             <th>Input Amount planned</th>
-
                           </tr>
                           </thead>
                           <tbody>
                           <tr *ngFor="let category of classification.categories; let j = index">
-                            <td>{{ category.categoryId }}</td>
+
                             <td>{{ category.name }}</td>
                             <td>{{ category.amountPlanned | currency }}</td>
                             <td>
-                              <input type="number" class="form-control"
+                              <input type="number" class="form-control" [readonly]="!isFreezing"
                                      [(ngModel)]="category.amountPlanned"
                                      (ngModelChange)="updateTotalPlanned()"
                                      [ngModelOptions]="{standalone: true}">
                             </td>
-
                           </tr>
-
                           </tbody>
                         </table>
                       </div>
@@ -136,10 +133,7 @@
                 </div>
               </div>
             </div>
-
-
           </div>
-
           <div class="col-md-6" *ngIf=" isFreezing ">
             <div class="form-group row">
               <div class="col-sm-10">
@@ -147,10 +141,8 @@
               </div>
             </div>
           </div>
-
         </form>
       </div>
-
     </app-card>
   </div>
 </div>

@@ -71,7 +71,14 @@ export const NavigationItems: NavigationItem[] = [
         id: 'budget',
         title: 'Buget',
         type: 'item',
-        url: '/budget',
+        url: '/budget/c',
+        icon: 'feather icon-home'
+      },
+      {
+        id: 'budget-list',
+        title: 'Buget list',
+        type: 'item',
+        url: '/budget-list',
         icon: 'feather icon-home'
       },
       {

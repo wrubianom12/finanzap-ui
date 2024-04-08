@@ -54,8 +54,13 @@ const routes: Routes = [
       },
 
       {
-        path: 'budget',
+        path: 'budget/:budgetId',
         loadComponent: () => import('./budget/create/create-budget.component')
+      },
+
+      {
+        path: 'budget-list',
+        loadComponent: () => import('./budget/list/budget-list.component')
       },
 
       {

@@ -13,12 +13,26 @@ export class BudgetService {
   constructor(private http: HttpClient) {
   }
 
-  getBudgetByBudgetId(budgetId: number): Observable<Account> {
-    return this.http.get<Account>(`${this.resourceUrl}/${budgetId}`);
+
+  getAllBudget(): Observable<Budget[]> {
+    return this.http.get<Budget[]>(`${this.resourceUrl}`);
+  }
+
+
+  getBudgetByBudgetId(budgetId: number): Observable<Budget> {
+    return this.http.get<Budget>(`${this.resourceUrl}/${budgetId}`);
+  }
+
+  deleteBudgetByBudgetId(budgetId: number): Observable<Budget> {
+    return this.http.delete<Budget>(`${this.resourceUrl}/${budgetId}`);
   }
 
   createBudget(budget: Budget): Observable<string> {
     return this.http.post<string>(`${this.resourceUrl}`, budget);
+  }
+
+  updateBudget(budget: Budget): Observable<string> {
+    return this.http.put<string>(`${this.resourceUrl}`, budget);
   }
 
 }

@@ -5,6 +5,7 @@ export interface Budget {
   userId?: number;
   name: string;
   period?: string;
+  baseAmount: number;
   totalPlanned: number;
   totalActual: number;
   budgetDetails?: BudgetDetail[];
