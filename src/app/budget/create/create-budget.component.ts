@@ -74,8 +74,8 @@ export default class CreateBudgetComponent {
             totalActual: value.totalActual
           });
           const categorias: ClassificationModel[] = this.convertBudgetToClasscification(value);
-          //console.log('El resultado del map es ' + JSON.stringify(categorias));
           this.classificationsSelected = categorias;
+          this.updateTotalPlanned();
         }
       });
     }
@@ -158,15 +158,37 @@ export default class CreateBudgetComponent {
   updateTotalPlanned() {
     let total = 0;
     this.classificationsSelected.forEach(classification => {
+      // Reinicia la suma para esta clasificación.
+      let sumClassification = 0;
+
       classification?.categories?.forEach(category => {
         const amount = Number(category.amountPlanned) || 0;
         total += amount;
+        sumClassification += amount; // Suma correctamente para la clasificación actual.
       });
+
+      // Asigna la suma calculada a la propiedad de la clasificación.
+      classification.sumClassification = sumClassification;
     });
+    this.updateClassificationsWithSortedCategories();
     this.budgetForm.patchValue({
       totalPlanned: total
     });
   }
+
+  updateClassificationsWithSortedCategories() {
+    this.classificationsSelected.forEach(classification => {
+      if (classification.categories) {
+        classification.categories.sort((a, b) => {
+          // Asignar un valor predeterminado de 0 si amountPlanned es undefined
+          const amountA = a.amountPlanned ?? 0;
+          const amountB = b.amountPlanned ?? 0;
+          return amountB - amountA;
+        });
+      }
+    });
+  }
+
 
   addClassificationToBudget() {
     if (this.currentClassification && this.currentClassification.id !== undefined && this.currentClassification.id > 0) {

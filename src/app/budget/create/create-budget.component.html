@@ -64,6 +64,9 @@
             </div>
 
           </div>
+          <div class="col-md-6">
+
+          </div>
           <div class="col-sm-12" *ngIf=" isFreezing ">
             <h5>Detail budget</h5>
             <hr />
@@ -98,7 +101,9 @@
                       <button class="accordion-button" type="button" data-bs-toggle="collapse"
                               [attr.data-bs-target]="'#collapse'+i" aria-expanded="true"
                               [attr.aria-controls]="'collapse'+i">
-                        {{ classification.name }} - {{ classification.percent }}%
+                        {{ classification.name }} - {{ classification.percent }}
+                        % : {{ (budgetForm.get('baseAmount')?.value * classification.percent) / 100 | currency }}
+                        --- Gastado = {{ classification.sumClassification | currency }}
                       </button>
                     </h2>
                     <div [attr.id]="'collapse'+i" class="accordion-collapse collapse show"
@@ -107,7 +112,6 @@
                         <table class="table">
                           <thead>
                           <tr>
-
                             <th>Category Name</th>
                             <th>Amount planned</th>
                             <th>Input Amount planned</th>

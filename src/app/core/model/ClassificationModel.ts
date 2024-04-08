@@ -5,5 +5,9 @@ export interface ClassificationModel {
   code: string;
   name: string;
   percent: number;
-  categories?: Category[]
+  categories?: Category[];
+
+
+  sumClassification?: number;
+
 }
