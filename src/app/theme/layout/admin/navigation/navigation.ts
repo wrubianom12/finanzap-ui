@@ -80,6 +80,12 @@ export const NavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/budget-list',
         icon: 'feather icon-home'
+      }, {
+        id: 'budget-view',
+        title: 'Buget View',
+        type: 'item',
+        url: '/budget-view',
+        icon: 'feather icon-home'
       },
       {
         id: 'Classification',

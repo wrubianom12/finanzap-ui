@@ -57,12 +57,14 @@ const routes: Routes = [
         path: 'budget/:budgetId',
         loadComponent: () => import('./budget/create/create-budget.component')
       },
-
       {
         path: 'budget-list',
         loadComponent: () => import('./budget/list/budget-list.component')
       },
-
+      {
+        path: 'budget-view',
+        loadComponent: () => import('./budget/view/view-budget.component')
+      },
       {
         path: 'classification/:classificationId',
         loadComponent: () => import('./classification/create/classification.component')

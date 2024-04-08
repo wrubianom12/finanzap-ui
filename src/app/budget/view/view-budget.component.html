@@ -1,0 +1,98 @@
+<div class="row">
+  <div class="col-sm-12">
+
+    <app-card cardTitle="Budget" [options]="false">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group row">
+            <label for="name" class="col-sm-3 col-form-label">Options</label>
+            <div class="col-sm-9">
+              <select class="form-select" id="inlineFormSelectPref"
+                      (change)="selectBudget($event)">
+                <option *ngFor="let budget of budgets" [value]="budget.id">{{ budget.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </app-card>
+
+    <app-card cardTitle="" [options]="false">
+      <h5>Apply Budget</h5>
+      <hr />
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Name</label>
+            <div class="col-sm-9">
+              <input type="text" readonly class="form-control"
+                     [value]="currentBudget.name" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Base amount</label>
+            <div class="col-sm-9">
+              <input type="text" readonly class="form-control" [value]="currentBudget.baseAmount | currency" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Total planed</label>
+            <div class="col-sm-9">
+              <input type="text" readonly class="form-control" [value]="currentBudget.totalPlanned | currency" />
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12">
+          <div class="row">
+            <div class="col-12">
+              <div *ngFor="let classification of classificationsSelected; let i = index" class="accordion"
+                   id="accordionClassification">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" [attr.id]="'heading'+i">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            [attr.data-bs-target]="'#collapse'+i" aria-expanded="true"
+                            [attr.aria-controls]="'collapse'+i">
+                      [{{ classification.name }}-{{ classification.percent }}]%
+                      -[Tope máximo {{ (currentBudget.baseAmount * classification.percent / 100)| currency }} ]
+                      -[Tope planeado {{ (classification.sumClassification)| currency }} ]
+                    </button>
+                  </h2>
+                  <div [attr.id]="'collapse'+i" class="accordion-collapse collapse show"
+                       [attr.aria-labelledby]="'heading'+i" data-bs-parent="#accordionClassification">
+                    <div class="accordion-body">
+                      <table class="table">
+                        <thead>
+                        <tr>
+                          <th>Category Name</th>
+                          <th>Amount planned</th>
+                          <th>Total Spend</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let category of classification.categories; let j = index">
+                          <td>{{ category.name }}</td>
+                          <td>{{ category.amountPlanned | currency }}</td>
+                          <td>{{ category.amountPlanned | currency }}</td>
+                        </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6" *ngIf=" isFreezing ">
+          <div class="form-group row">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </app-card>
+  </div>
+</div>
