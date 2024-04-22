@@ -10,4 +10,6 @@ export interface ClassificationModel {
 
   sumClassification?: number;
 
+  sumAmountActual?: number;
+
 }

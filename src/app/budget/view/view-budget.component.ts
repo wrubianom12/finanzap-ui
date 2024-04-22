@@ -11,6 +11,10 @@ import { ClassificationService } from '../../service/ClassificationService.servi
 import Swal from 'sweetalert2';
 import { Category } from '../../core/model/Category';
 import { ActivatedRoute } from '@angular/router';
+import { TransactionService } from '../../service/TransactionService.service';
+import { FormControl, FormGroup } from '@angular/forms';
+import { Transaction } from '../../core/model/Transaction';
+import { BudgetDetail } from '../../core/model/BudgetDetail';
 
 
 @Component({
@@ -23,10 +27,11 @@ import { ActivatedRoute } from '@angular/router';
 export default class ViewBudgetComponent {
 
   budgets: Budget[] = [];
-
+  transactionSearchForm: FormGroup;
   classifications: ClassificationModel[] = [];
-  currentClassification: ClassificationModel = { name: '', code: '', percent: 0 };
+
   classificationsSelected: ClassificationModel[] = [];
+  transactions: Transaction[] = [];
 
   isFreezing: boolean = false;
   isCreating: boolean = true;
@@ -34,9 +39,16 @@ export default class ViewBudgetComponent {
 
   constructor(public budgetService_: BudgetService,
               private activatedRoute: ActivatedRoute,
+              public transactionService_: TransactionService,
               public classificationService_: ClassificationService) {
     this.loadClassifications();
     this.loadBudgets();
+    this.transactionSearchForm = new FormGroup({
+      transactionType: new FormControl(''),
+      categoryFilterType: new FormControl(''),
+      firstDate: new FormControl(''),
+      endDate: new FormControl('')
+    });
   }
 
   ngOnInit(): void {
@@ -131,19 +143,27 @@ export default class ViewBudgetComponent {
 
   updateTotalPlanned() {
     let total = 0;
+    let totalActual = 0;
     this.classificationsSelected.forEach(classification => {
       // Reinicia la suma para esta clasificación.
       let sumClassification = 0;
+      let sumAmountActual = 0;
       classification?.categories?.forEach(category => {
         const amount = Number(category.amountPlanned) || 0;
         total += amount;
         sumClassification += amount; // Suma correctamente para la clasificación actual.
+
+        const amountActual = Number(category.amountActual) || 0;
+        totalActual += amountActual;
+        sumAmountActual += amountActual;
       });
       // Asigna la suma calculada a la propiedad de la clasificación.
       classification.sumClassification = sumClassification;
+      classification.sumAmountActual = sumAmountActual;
     });
     this.updateClassificationsWithSortedCategories();
     this.currentBudget.totalPlanned = total;
+    this.currentBudget.totalActual = totalActual;
   }
 
   updateClassificationsWithSortedCategories() {
@@ -158,5 +178,58 @@ export default class ViewBudgetComponent {
       }
     });
   }
+
+
+  search() {
+    this.transactionService_
+      .getAllTransactionByCriteriaAll(this.addTimeToDate(this.transactionSearchForm.value.firstDate),
+        this.addTimeToDate(this.transactionSearchForm.value.endDate),
+        this.transactionSearchForm.value.transactionType,
+        this.transactionSearchForm.value.categoryFilterType)
+      .subscribe(
+        data => {
+          this.transactions = data;
+
+          this.loadTransactionsOnBudget();
+        },
+        error => {
+          console.log('error consume getAllTransactionByCriteria ', error);
+        }
+      );
+  }
+
+  addTimeToDate(dateInput: string): string {
+
+    if (dateInput !== null && dateInput !== undefined && dateInput !== '') {
+      const hours = '00';
+      const minutes = '00';
+      const seconds = '00';
+      const timeString = `${hours}:${minutes}:${seconds}`;
+      return `${dateInput}T${timeString}`;
+    }
+    return '';
+  }
+
+  loadTransactionsOnBudget() {
+    this.classificationsSelected.forEach(budget => {
+      if (budget.categories) {
+
+        budget.categories.forEach(detail => {
+          detail.amountActual = 0;
+        });
+
+        budget.categories.forEach(detail => {
+          if (detail.amountActual === undefined) {
+            detail.amountActual = 0;
+          }
+          const matchingTransactions = this.transactions.filter(t => t.category === detail.code);
+          const totalAmountActual = matchingTransactions.reduce((sum, t) => sum + t.value, 0);
+          detail.amountActual += totalAmountActual;
+        });
+      }
+    });
+    this.updateTotalPlanned()
+  }
+
 
 }

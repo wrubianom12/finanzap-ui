@@ -10,7 +10,7 @@ export interface Category {
   classifications?: ClassificationModel[];
 
   amountPlanned?: number;
-
+  amountActual?: number;
   budgetDetailId?: number;
 
 }

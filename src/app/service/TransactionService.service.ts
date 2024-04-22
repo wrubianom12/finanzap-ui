@@ -16,8 +16,12 @@ export class TransactionService {
     return this.http.get<Transaction[]>(`${this.resourceUrl}/account/${accountId}`);
   }
 
-  getAllTransactionByCriteria(accountId: number, firstDate: string, endDate: string, transactionType: string, categoryType: string): Observable<Transaction[]> {
+  getAllTransactionByCriteria(accountId: number | null, firstDate: string, endDate: string, transactionType: string, categoryType: string): Observable<Transaction[]> {
     return this.http.get<Transaction[]>(`${this.resourceUrl}/account/${accountId}/search?transactionType=${transactionType}&firstDate=${firstDate}&endDate=${endDate}&categoryType=${categoryType}`);
+  }
+
+  getAllTransactionByCriteriaAll( firstDate: string, endDate: string, transactionType: string, categoryType: string): Observable<Transaction[]> {
+    return this.http.get<Transaction[]>(`${this.resourceUrl}/account/search?transactionType=${transactionType}&firstDate=${firstDate}&endDate=${endDate}&categoryType=${categoryType}`);
   }
 
   getTransactionByTransactionId(transactionId: number): Observable<Transaction> {
