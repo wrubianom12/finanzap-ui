@@ -22,7 +22,7 @@
               "mousetrap",
               "apexcharts"
             ],
-            "outputPath": "dist",
+            "outputPath": "dist/finanzapp-ui",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
