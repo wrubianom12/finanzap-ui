@@ -6,7 +6,7 @@ import { Account } from '../core/model/Account';
 @Injectable({ providedIn: 'root' })
 export class AccountService {
 
-  private resourceUrl = 'http://localhost:8082/api/v1/account';
+  private resourceUrl = '/api/v1/account';
 
 
   constructor(private http: HttpClient) {

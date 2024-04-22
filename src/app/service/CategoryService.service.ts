@@ -8,7 +8,7 @@ import { switchMap, tap } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
 
-  private resourceUrl = 'http://localhost:8084/api/v1/transversal/category';
+  private resourceUrl = '/api/v1/transversal/category';
   private categoriesCache: Category[] = [];
 
   constructor(private http: HttpClient) {

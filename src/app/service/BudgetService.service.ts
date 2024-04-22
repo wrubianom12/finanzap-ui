@@ -7,7 +7,7 @@ import { Budget } from '../core/model/Budget';
 @Injectable({ providedIn: 'root' })
 export class BudgetService {
 
-  private resourceUrl = 'http://localhost:8087/api/v1/budget';
+  private resourceUrl = '/api/v1/budget';
 
 
   constructor(private http: HttpClient) {
