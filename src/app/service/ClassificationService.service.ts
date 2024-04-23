@@ -8,7 +8,7 @@ import { ClassificationModel } from '../core/model/ClassificationModel';
 @Injectable({ providedIn: 'root' })
 export class ClassificationService {
 
-  private resourceUrl = '/api/v1/transversal/classification';
+  private resourceUrl = 'http://localhost:8084/api/v1/transversal/classification';
 
   constructor(private http: HttpClient) {
   }

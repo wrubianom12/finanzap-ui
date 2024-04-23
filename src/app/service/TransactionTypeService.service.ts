@@ -6,7 +6,7 @@ import { KeyValueParameter } from '../core/model/KeyValueParameter';
 @Injectable({ providedIn: 'root' })
 export class TransactionTypeService {
 
-  private resourceUrl = '/api/v1/transversal/transaction-type';
+  private resourceUrl = 'http://localhost:8084/api/v1/transversal/transaction-type';
 
 
   constructor(private http: HttpClient) {

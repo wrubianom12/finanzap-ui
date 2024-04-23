@@ -6,7 +6,7 @@ import { Transaction } from '../core/model/Transaction';
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
 
-  private resourceUrl = '/api/v1/transaction';
+  private resourceUrl = 'http://localhost:8083/api/v1/transaction';
 
 
   constructor(private http: HttpClient) {

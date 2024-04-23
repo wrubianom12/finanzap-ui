@@ -11,3 +11,10 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=production
+
+    networks:
+      - docker-network-finanzap
+
+networks:
+  docker-network-finanzap:
+    external: true
