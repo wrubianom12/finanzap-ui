@@ -124,9 +124,11 @@ export default class ViewBudgetComponent {
           };
         }
       }
+
       const category: Category = {
         budgetDetailId: detail.id,
-        code: detail.categoryType,
+        categoryId: detail.categoryTypeId,
+        code: '',
         name: detail.categoryTypeName,
         transactionTypeEnum: '',
         amountPlanned: detail.amountPlanned
@@ -222,13 +224,13 @@ export default class ViewBudgetComponent {
           if (detail.amountActual === undefined) {
             detail.amountActual = 0;
           }
-          const matchingTransactions = this.transactions.filter(t => t.category === detail.code);
+          const matchingTransactions = this.transactions.filter(t => t.category === detail.categoryId);
           const totalAmountActual = matchingTransactions.reduce((sum, t) => sum + t.value, 0);
           detail.amountActual += totalAmountActual;
         });
       }
     });
-    this.updateTotalPlanned()
+    this.updateTotalPlanned();
   }
 
 

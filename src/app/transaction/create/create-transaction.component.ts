@@ -28,7 +28,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 })
 export default class CreateTransactionComponent {
 
-  currentTransaction: Transaction = { accountId: 1, value: 1, category: '', description: '', date: '', type: '' };
+  currentTransaction: Transaction = { accountId: 1, value: 1, category: -1, description: '', date: '', type: '' };
   isCreatingTransaction: boolean;
   transactionForm: FormGroup;
   transactionsType: KeyValueParameter[] = [];
@@ -60,7 +60,7 @@ export default class CreateTransactionComponent {
   }
 
   initForm(): void {
-    this.currentTransaction = { accountId: 1, value: 1, category: '', description: '', date: '', type: '' };
+    this.currentTransaction = { accountId: 1, value: 1, category: -1, description: '', date: '', type: '' };
     this.isCreatingTransaction = true;
     this.loadAccounts();
     this.loadFormTransactions();
@@ -105,7 +105,7 @@ export default class CreateTransactionComponent {
         type: '',
         date: null,
         transactionType: '',
-        category: '',
+        category: -1,
         description: ''
       });
     } else {
@@ -159,8 +159,11 @@ export default class CreateTransactionComponent {
 
 
   onCategoryChange(selectedCategory: any) {
+
+
     const category =
-      this.categories.find(category => (category.code) === (selectedCategory.target.value));
+      this.categories.find(category => (category.categoryId) === (selectedCategory.target.value));
+
     if (category) {
       this.transactionForm.get('type')?.setValue(category.transactionTypeEnum);
       this.transactionForm.patchValue({

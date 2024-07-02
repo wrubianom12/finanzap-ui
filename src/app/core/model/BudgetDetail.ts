@@ -1,6 +1,6 @@
 export interface BudgetDetail {
   id?: number;
-  categoryType: string;
+  categoryTypeId: number;
   classificationCode: string;
   classificationName: string;
   categoryTypeName: string;

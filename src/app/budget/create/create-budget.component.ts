@@ -108,7 +108,8 @@ export default class CreateBudgetComponent {
       }
       const category: Category = {
         budgetDetailId: detail.id,
-        code: detail.categoryType,
+        categoryId: detail.categoryTypeId,
+        code: '',
         name: detail.categoryTypeName,
         transactionTypeEnum: '',
         amountPlanned: detail.amountPlanned
@@ -344,7 +345,7 @@ export default class CreateBudgetComponent {
     categories?.forEach(category => {
       const detail: BudgetDetail = {
         id: category.budgetDetailId,
-        categoryType: category.code,
+        categoryTypeId: category.categoryId ? category.categoryId : -1,
         classificationCode: classificationCode,
         classificationName: classificationName,
         categoryTypeName: category.name,

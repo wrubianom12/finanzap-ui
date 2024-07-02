@@ -6,7 +6,7 @@ import { Transaction } from '../core/model/Transaction';
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
 
-  private resourceUrl = 'http://localhost:8083/api/v1/transaction';
+  private resourceUrl = 'http://localhost:8082/api/v1/transaction';
 
 
   constructor(private http: HttpClient) {
@@ -17,7 +17,7 @@ export class TransactionService {
     return this.http.get<Transaction[]>(`${this.resourceUrl}/account/${accountId}`);
   }
 
-  getAllTransactionByCriteria(accountId: number | null, firstDate: string, endDate: string, transactionType: string, categoryType: string): Observable<Transaction[]> {
+  getAllTransactionByCriteria(accountId: number | null, firstDate: string, endDate: string, transactionType: string, categoryType: number): Observable<Transaction[]> {
     return this.http.get<Transaction[]>(`${this.resourceUrl}/account/${accountId}/search?transactionType=${transactionType}&firstDate=${firstDate}&endDate=${endDate}&categoryType=${categoryType}`);
   }
 

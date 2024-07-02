@@ -17,6 +17,7 @@ import { KeyValueParameter } from '../../core/model/KeyValueParameter';
 import { TransactionTypeService } from '../../service/TransactionTypeService.service';
 import { Category } from '../../core/model/Category';
 import ChartPieComponent from '../../core/components/chart/pie/chart-pie.component';
+import { CategoryService } from '../../service/CategoryService.service';
 
 
 @Component({
@@ -47,10 +48,12 @@ export default class TransactionListComponent {
   categoryTypesFilter: KeyValueParameter[] = [];
   transactions: Transaction[] = [];
   currentAccountId: number = 0;
-  filterCategory: string = '';
+  filterCategory: number = -1;
   sortDirection: 'asc' | 'desc' | null = 'asc';
+  allCategories: Category[] = [];
 
-  constructor(public accountService_: AccountService, public transactionTypeService_: TransactionTypeService, public transactionService_: TransactionService, private router: Router) {
+  constructor(public accountService_: AccountService, public transactionTypeService_: TransactionTypeService, public transactionService_: TransactionService, private router: Router,
+              public categoryService_: CategoryService) {
     this.transactionSearchForm = new FormGroup({
       transactionType: new FormControl(''),
       categoryFilterType: new FormControl(''),
@@ -64,6 +67,15 @@ export default class TransactionListComponent {
   }
 
   initForm(): void {
+    this.categoryService_.getAllCategories().subscribe(
+      data => {
+        this.allCategories = data;
+      },
+      error => {
+        console.log('error getAllTransactionType', error);
+      }
+    );
+
     this.accountService_.getAllAccountByUserId().subscribe(
       data => {
         this.accounts = data;
@@ -127,7 +139,7 @@ export default class TransactionListComponent {
 
     this.transactionSearchForm.patchValue({
       firstDate: this.formatDate(startDate),
-      endDate:this.formatDate(endDate)
+      endDate: this.formatDate(endDate)
     });
 
     this.transactionService_
@@ -135,7 +147,7 @@ export default class TransactionListComponent {
         startDate,
         endDate,
         '',
-        '')
+        -1)
       .subscribe(
         data => {
           this.transactions = data;
@@ -158,7 +170,7 @@ export default class TransactionListComponent {
     const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     // Función para ajustar la fecha a la zona horaria de Colombia (UTC-5) y formatearla
-    function toColombiaISOStringPlusOneDay(date:any) {
+    function toColombiaISOStringPlusOneDay(date: any) {
       // Ajustar fecha a UTC-5
       const utcDate = new Date(date.getTime() - (5 * 60 * 60 * 1000));
       // Sumar un día
@@ -179,6 +191,7 @@ export default class TransactionListComponent {
     this.transactionService_.getAllTransactionByAccountId(accountId).subscribe(
       data => {
         this.transactions = data;
+        console.log(`Las transacciones por cuenta es ${JSON.stringify(data)}`);
         this.loadChars();
         this.loadSpecificCategories();
       },
@@ -192,25 +205,24 @@ export default class TransactionListComponent {
     this.categoryTypesFilter = [];
     const uniqueCategories: KeyValueParameter[] = this.transactions.reduce((acc: KeyValueParameter[], current: Transaction) => {
       // Busca si la categoría ya existe en el acumulador
-      const categoryIndex = acc.findIndex(category => category.key === current.category);
+      const categoryIndex = acc.findIndex(category => Number(category.key) === current.category);
 
       if (categoryIndex === -1) {
-        // Si no existe, añade la categoría al acumulador con un conteo inicial de 1
-        // y establece el valor inicial de value2 como el valor de la transacción actual
-        acc.push({ key: current.category, value: `1`, value2: `${(current.value)}` });
+        acc.push({ key: `${current.category}`, value: `1`, value2: `${(current.value)}` });
       } else {
         acc[categoryIndex].value = (parseInt(acc[categoryIndex].value, 10) + 1).toString();
         acc[categoryIndex].value2 = `${((Number(acc[categoryIndex].value2) + Number(current.value)))}`;
       }
       return acc;
     }, []);
+
     uniqueCategories.forEach(
       cate => {
         this.categoryTypesFilter.push({
           key: cate.key,
           value: cate.value,
           value2: cate.value2,
-          label: (cate.key + ' - ' + cate.value)
+          label: (cate.key + ' - ' + this.allCategories.find(cat => cat.categoryId === Number(cate.key))?.name)
         });
       }
     );
@@ -229,7 +241,7 @@ export default class TransactionListComponent {
     this.categoryTypesFilter.forEach(
       param => {
         this.itemsChartGroupByCategories.push({
-          label: param.key,
+          label: this.getNameCategoryByCategoryId(Number(param.key)),
           value: Number(param.value2)
         });
       }
@@ -273,10 +285,26 @@ export default class TransactionListComponent {
   }
 
   get filteredTransactions(): Transaction[] {
-    return this.transactions.filter(transaction =>
-      transaction.category.toLowerCase().includes(this.filterCategory.toLowerCase())
-    );
+    if (this.filterCategory > 0) {
+      return this.transactions.filter(transaction =>
+        Number(transaction.category) === Number(this.filterCategory)
+      );
+    } else {
+      return this.transactions;
+    }
   }
+
+  getNameCategoryByCategoryId(categoryId: number): string {
+    if (categoryId > 0) {
+      const categoryResult = this.allCategories.find(category =>
+        Number(category.categoryId) === categoryId
+      );
+      return categoryResult ? categoryResult.name : '';
+    } else {
+      return '';
+    }
+  }
+
 
   toggleSort() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -291,6 +319,7 @@ export default class TransactionListComponent {
 
 
   search() {
+    this.filterCategory = this.transactionSearchForm.value.categoryFilterType;
     this.transactionService_
       .getAllTransactionByCriteria(this.currentAccountId,
         this.addTimeToDate(this.transactionSearchForm.value.firstDate),
